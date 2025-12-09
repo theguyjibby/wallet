@@ -2,8 +2,15 @@ from web3 import Web3
 import requests
 import os
 from dotenv import load_dotenv
+import time
+from datetime import datetime, timedelta
 
 load_dotenv()
+
+# Price caching to prevent rate limiting
+_cached_eth_price = None
+_cache_timestamp = None
+_CACHE_DURATION = 300  # 5 minutes in seconds
 
 INFURA_URL = os.getenv('INFURA_URL', 'https://sepolia.infura.io/v3/YOUR_INFURA_ID')
 w3 = Web3(Web3.HTTPProvider(INFURA_URL))
@@ -68,14 +75,23 @@ def check_balance(address):
 
 def get_eth_price_usd():
     """
-    Fetch current ETH price in USD from CoinGecko API.
-    Automatically retries up to 3 times with exponential backoff.
-    Returns float price or 0 if all retries fail.
+    Fetch current ETH price in USD from CoinGecko API with caching.
+    Returns cached price if fresh (< 5 minutes old).
+    If cache is stale or empty, fetches new price with retry logic.
+    Returns last known good price if all retries fail (never returns 0).
     """
-    import time
+    global _cached_eth_price, _cache_timestamp
     
+    # Check if cache is valid
+    if _cached_eth_price is not None and _cache_timestamp is not None:
+        cache_age = time.time() - _cache_timestamp
+        if cache_age < _CACHE_DURATION:
+            # Cache is fresh, return it
+            return _cached_eth_price
+    
+    # Cache is stale or doesn't exist, fetch new price
     max_retries = 3
-    base_delay = 1  # Start with 1 second delay
+    base_delay = 1
     
     for attempt in range(max_retries):
         try:
@@ -84,16 +100,18 @@ def get_eth_price_usd():
                 "ids": "ethereum",
                 "vs_currencies": "usd"
             }
-            response = requests.get(url, params=params, timeout=5)
-            response.raise_for_status()  # Raise exception for bad status codes
+            response = requests.get(url, params=params, timeout=10)
+            response.raise_for_status()
             data = response.json()
             
             if 'ethereum' in data and 'usd' in data['ethereum']:
                 price = float(data['ethereum']['usd'])
+                # Update cache
+                _cached_eth_price = price
+                _cache_timestamp = time.time()
                 return price
             else:
                 print(f"Unexpected API response format: {data}")
-                # Don't return yet, try again
                 
         except requests.exceptions.Timeout:
             print(f"ETH price API request timed out (attempt {attempt + 1}/{max_retries})")
@@ -110,9 +128,17 @@ def get_eth_price_usd():
             print(f"Retrying in {delay} seconds...")
             time.sleep(delay)
     
-    # All retries failed, return 0 as fallback
-    print("All ETH price fetch attempts failed. Returning 0.")
-    return 0
+    # All retries failed
+    # Return cached price if we have one (even if stale), otherwise return a sensible default
+    if _cached_eth_price is not None:
+        print(f"All API attempts failed. Returning cached price: ${_cached_eth_price}")
+        return _cached_eth_price
+    else:
+        # No cached price available, return approximate market price as fallback
+        # This prevents $0 from breaking calculations
+        fallback_price = 3300.0
+        print(f"No cached price available. Returning fallback: ${fallback_price}")
+        return fallback_price
 
 
 if __name__ == "__main__":

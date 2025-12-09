@@ -229,13 +229,32 @@ def forgot_password_route():
         from reset_password import send_reset_email
         data = request.get_json()
         email = data.get("email")
+        
+        if not email:
+            return jsonify({"message": "Email is required."}), 400
+        
         user = User.query.filter_by(email=email).first()
         if user:
-            send_reset_email(user)
+            try:
+                # Check if mail is configured
+                if not app.config.get('MAIL_USERNAME') or not app.config.get('MAIL_PASSWORD'):
+                    return jsonify({
+                        "message": "Email service is not configured. Please contact support or try again later."
+                    }), 503
+                
+                send_reset_email(user)
+                return jsonify({"message": "Password reset link sent to your email"}), 200
+                
+            except Exception as e:
+                # Log the error for debugging
+                print(f"Error sending reset email: {e}")
+                return jsonify({
+                    "message": "Failed to send reset email. Please try again later or contact support."
+                }), 500
 
-            return jsonify({"message": "click the link sent to your email"})
-
-        return jsonify({"message": "wrong email."}), 400
+        # Don't reveal if email exists or not for security
+        return jsonify({"message": "If this email is registered, you will receive a reset link."}), 200
+    
     return render_template('forgot_password.html')
 
 
