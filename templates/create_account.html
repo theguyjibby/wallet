@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <title>Create Account - Web3 Wallet</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#4A90E2",
+                        "background-light": "#F4F7FA",
+                        "background-dark": "#161022",
+                        "text-light-primary": "#333333",
+                        "text-light-secondary": "#777777",
+                        "text-dark-primary": "#ffffff",
+                        "text-dark-secondary": "#a69db9",
+                        "error": "#D0021B",
+                        "success": "#50E3C2"
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+</head>
+
+<body>
+    <div
+        class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark font-display group/design-root overflow-x-hidden">
+        <div class="layout-container flex h-full grow flex-col">
+            <header class="flex justify-between items-center py-6 px-4 max-w-[960px] mx-auto w-full">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-3xl">account_balance_wallet</span>
+                    <span class="text-xl font-bold text-text-light-primary dark:text-text-dark-primary">Web3
+                        Wallet</span>
+                </div>
+                <a href="/dashboard"
+                    class="text-sm font-medium text-text-light-secondary dark:text-text-dark-secondary hover:text-primary transition-colors flex items-center gap-1">
+                    <span class="material-symbols-outlined text-lg">arrow_back</span>
+                    Dashboard
+                </a>
+            </header>
+
+            <main class="px-4 flex flex-1 justify-center py-5">
+                <div class="layout-content-container flex flex-col max-w-[500px] flex-1">
+
+                    <div class="flex flex-col gap-3 text-center mb-8">
+                        <h1
+                            class="text-text-light-primary dark:text-text-dark-primary text-4xl font-black leading-tight tracking-[-0.033em]">
+                            New Account</h1>
+                        <p
+                            class="text-text-light-secondary dark:text-text-dark-secondary text-base font-normal leading-normal">
+                            Create a separate account for better organization.</p>
+                    </div>
+
+                    <div
+                        class="bg-white dark:bg-[#1f1c27] rounded-xl shadow-sm border border-gray-200 dark:border-[#433b54] overflow-hidden p-6">
+                        <form id="createAccountForm" class="flex flex-col gap-6"
+                            onsubmit="return submitCreateAccount(event)">
+
+                            <!-- Account Name -->
+                            <div class="flex flex-col gap-2">
+                                <label
+                                    class="text-text-light-primary dark:text-text-dark-primary text-base font-medium leading-normal">Account
+                                    Name</label>
+                                <input id="accountName" type="text"
+                                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light-primary dark:text-text-dark-primary focus:outline-0 border border-gray-300 dark:border-[#433b54] bg-white dark:bg-[#161022] focus:border-primary focus:ring-2 focus:ring-primary/30 h-12 px-4 text-base font-normal leading-normal"
+                                    placeholder="e.g. Savings, Trading" required />
+                            </div>
+
+                            <!-- Password -->
+                            <div class="flex flex-col gap-2">
+                                <label
+                                    class="text-text-light-primary dark:text-text-dark-primary text-base font-medium leading-normal">Password</label>
+                                <input id="password" type="password"
+                                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light-primary dark:text-text-dark-primary focus:outline-0 border border-gray-300 dark:border-[#433b54] bg-white dark:bg-[#161022] focus:border-primary focus:ring-2 focus:ring-primary/30 h-12 px-4 text-base font-normal leading-normal"
+                                    placeholder="Confirm your password" required />
+                            </div>
+
+                            <!-- Status Message -->
+                            <div id="status" class="text-sm font-medium min-h-[20px]"></div>
+
+                            <!-- Buttons -->
+                            <div class="flex flex-col gap-3 pt-2">
+                                <button id="createBtn" type="submit"
+                                    class="w-full bg-primary text-white font-bold py-3 px-4 rounded-lg hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">
+                                    Create Account
+                                </button>
+                                <a href="/dashboard"
+                                    class="w-full text-center text-text-light-secondary dark:text-text-dark-secondary font-medium py-3 hover:text-text-light-primary dark:hover:text-text-dark-primary transition-colors">
+                                    Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        async function submitCreateAccount(event) {
+            event.preventDefault();
+            const accountName = document.getElementById('accountName').value;
+            const password = document.getElementById('password').value;
+            const statusEl = document.getElementById('status');
+            const createBtn = document.getElementById('createBtn');
+
+            statusEl.textContent = '';
+            statusEl.className = 'text-sm font-medium min-h-[20px]';
+
+            if (!accountName || !password) {
+                statusEl.textContent = 'Please fill in all fields.';
+                statusEl.classList.add('text-error');
+                return;
+            }
+
+            const originalText = createBtn.textContent;
+            createBtn.disabled = true;
+            createBtn.innerHTML = '<span class="material-symbols-outlined animate-spin text-sm mr-2">progress_activity</span>Creating...';
+
+            try {
+                const resp = await fetch('/create_account', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ account_name: accountName, password: password })
+                });
+
+                // Check content type to see if we got JSON or HTML (error page)
+                const contentType = resp.headers.get("content-type");
+                if (contentType && contentType.indexOf("application/json") !== -1) {
+                    const data = await resp.json();
+                    if (resp.ok) {
+                        statusEl.className = 'text-sm font-medium min-h-[20px] text-success';
+                        statusEl.textContent = 'Account created successfully! Redirecting...';
+                        setTimeout(() => window.location.href = '/dashboard', 1500);
+                    } else {
+                        statusEl.className = 'text-sm font-medium min-h-[20px] text-error';
+                        // Handle case where data is a string (backend currently returns jsonify("string")) or object
+                        statusEl.textContent = typeof data === 'string' ? data : (data.message || 'Failed to create account');
+                    }
+                } else {
+                    statusEl.className = 'text-sm font-medium min-h-[20px] text-error';
+                    statusEl.textContent = 'Server error. Please try again.';
+                }
+            } catch (err) {
+                console.error(err);
+                statusEl.className = 'text-sm font-medium min-h-[20px] text-error';
+                statusEl.textContent = 'Network or server error.';
+            } finally {
+                createBtn.disabled = false;
+                createBtn.innerHTML = originalText;
+            }
+        }
+    </script>
+</body>
+
+</html>

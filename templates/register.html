@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+  <title>Web3 Wallet Register Page</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com" rel="preconnect" />
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&amp;display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+    rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+    rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#4A90E2",
+            "background-light": "#F4F7FA",
+            "background-dark": "#161022",
+            "text-light-primary": "#333333",
+            "text-light-secondary": "#777777",
+            "text-dark-primary": "#ffffff",
+            "text-dark-secondary": "#a69db9",
+            "error": "#D0021B",
+            "success": "#50E3C2"
+          },
+          fontFamily: {
+            "display": ["Space Grotesk", "sans-serif"]
+          },
+          borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+        },
+      },
+    }
+  </script>
+</head>
+
+<body>
+  <div
+    class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark font-display group/design-root overflow-x-hidden">
+    <div class="layout-container flex h-full grow flex-col">
+      <header class="flex justify-center py-6 px-4">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-primary text-3xl">account_balance_wallet</span>
+          <span class="text-xl font-bold text-text-light-primary dark:text-text-dark-primary">Web3 Wallet</span>
+        </div>
+      </header>
+      <main class="px-4 flex flex-1 justify-center py-5">
+        <div class="layout-content-container flex flex-col max-w-[960px] flex-1">
+          <!-- Part 1: Account Details Form -->
+          <div id="accountDetailsSection">
+            <div class="flex flex-wrap justify-between gap-3 p-4">
+              <div class="flex w-full flex-col gap-3 text-center">
+                <p
+                  class="text-text-light-primary dark:text-text-dark-primary text-4xl font-black leading-tight tracking-[-0.033em]">
+                  Create Your Secure Wallet</p>
+                <p class="text-text-light-secondary dark:text-text-dark-secondary text-base font-normal leading-normal">
+                  Start your journey into the decentralized web. Let's set up your account.</p>
+              </div>
+            </div>
+            <div class="mt-8">
+              <h2
+                class="text-text-light-primary dark:text-text-dark-primary text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-5">
+                1. Account Details</h2>
+              <form id="registerForm" class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5 px-4">
+                <label class="flex flex-col flex-1">
+                  <p
+                    class="text-text-light-primary dark:text-text-dark-primary text-base font-medium leading-normal pb-2">
+                    First Name</p>
+                  <input id="firstname"
+                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light-primary dark:text-text-dark-primary focus:outline-0 border border-gray-300 dark:border-[#433b54] bg-white dark:bg-[#1f1c27] focus:border-primary focus:ring-2 focus:ring-primary/30 h-12 placeholder:text-text-light-secondary dark:placeholder:text-[#a69db9] p-[15px] text-base font-normal leading-normal"
+                    placeholder="Enter your first name" required />
+                </label>
+                <label class="flex flex-col flex-1">
+                  <p
+                    class="text-text-light-primary dark:text-text-dark-primary text-base font-medium leading-normal pb-2">
+                    Last Name</p>
+                  <input id="lastname"
+                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light-primary dark:text-text-dark-primary focus:outline-0 border border-gray-300 dark:border-[#433b54] bg-white dark:bg-[#1f1c27] focus:border-primary focus:ring-2 focus:ring-primary/30 h-12 placeholder:text-text-light-secondary dark:placeholder:text-[#a69db9] p-[15px] text-base font-normal leading-normal"
+                    placeholder="Enter your last name" required />
+                </label>
+                <label class="flex flex-col flex-1">
+                  <p
+                    class="text-text-light-primary dark:text-text-dark-primary text-base font-medium leading-normal pb-2">
+                    Username</p>
+                  <input id="username"
+                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light-primary dark:text-text-dark-primary focus:outline-0 border border-gray-300 dark:border-[#433b54] bg-white dark:bg-[#1f1c27] focus:border-primary focus:ring-2 focus:ring-primary/30 h-12 placeholder:text-text-light-secondary dark:placeholder:text-[#a69db9] p-[15px] text-base font-normal leading-normal"
+                    placeholder="Choose a unique username" required />
+                </label>
+                <label class="flex flex-col flex-1">
+                  <p
+                    class="text-text-light-primary dark:text-text-dark-primary text-base font-medium leading-normal pb-2">
+                    Email</p>
+                  <input id="email"
+                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light-primary dark:text-text-dark-primary focus:outline-0 border border-gray-300 dark:border-[#433b54] bg-white dark:bg-[#1f1c27] focus:border-primary focus:ring-2 focus:ring-primary/30 h-12 placeholder:text-text-light-secondary dark:placeholder:text-[#a69db9] p-[15px] text-base font-normal leading-normal"
+                    placeholder="your.email@example.com" type="email" required />
+                </label>
+                <div class="flex flex-col col-span-1 md:col-span-2">
+                  <p
+                    class="text-text-light-primary dark:text-text-dark-primary text-base font-medium leading-normal pb-2">
+                    Password</p>
+                  <div class="relative">
+                    <input id="passwordInput"
+                      class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light-primary dark:text-text-dark-primary focus:outline-0 border border-gray-300 dark:border-[#433b54] bg-white dark:bg-[#1f1c27] focus:border-primary focus:ring-2 focus:ring-primary/30 h-12 placeholder:text-text-light-secondary dark:placeholder:text-[#a69db9] p-[15px] text-base font-normal leading-normal"
+                      placeholder="Create a strong password" type="password" required />
+                    <button type="button"
+                      class="absolute inset-y-0 right-0 flex items-center pr-3 text-text-light-secondary dark:text-text-dark-secondary hover:text-primary"
+                      onclick="togglePasswordVisibility()">
+                      <span class="material-symbols-outlined" id="passwordIcon">visibility_off</span>
+                    </button>
+                  </div>
+                  <div class="flex items-center gap-2 mt-2">
+                    <div class="password-strength-bar w-1/4 h-1 rounded-full bg-error"></div>
+                    <div class="password-strength-bar w-1/4 h-1 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+                    <div class="password-strength-bar w-1/4 h-1 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+                    <div class="password-strength-bar w-1/4 h-1 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+                    <span class="password-strength-text text-error text-sm ml-2">Weak</span>
+                  </div>
+                </div>
+                <label class="flex flex-col flex-1">
+                  <p
+                    class="text-text-light-primary dark:text-text-dark-primary text-base font-medium leading-normal pb-2">
+                    Phone Number</p>
+                  <input id="phone"
+                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light-primary dark:text-text-dark-primary focus:outline-0 border border-gray-300 dark:border-[#433b54] bg-white dark:bg-[#1f1c27] focus:border-primary focus:ring-2 focus:ring-primary/30 h-12 placeholder:text-text-light-secondary dark:placeholder:text-[#a69db9] p-[15px] text-base font-normal leading-normal"
+                    placeholder="+1 (555) 123-4567" type="tel" required />
+                </label>
+                <label class="flex flex-col flex-1">
+                  <p
+                    class="text-text-light-primary dark:text-text-dark-primary text-base font-medium leading-normal pb-2">
+                    Country</p>
+                  <select id="country"
+                    class="form-select flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light-primary dark:text-text-dark-primary focus:outline-0 border border-gray-300 dark:border-[#433b54] bg-white dark:bg-[#1f1c27] focus:border-primary focus:ring-2 focus:ring-primary/30 h-12 p-[15px] text-base font-normal leading-normal"
+                    required>
+                    <option value="">Select a Country</option>
+                    <option>United States</option>
+                    <option>Canada</option>
+                    <option>Mexico</option>
+                    <option>United Kingdom</option>
+                    <option>Germany</option>
+                    <option>France</option>
+                    <option>Australia</option>
+                    <option>Nigeria</option>
+                  </select>
+                </label>
+              </form>
+              <div class="p-4 mt-4">
+                <button id="createWalletBtn"
+                  class="w-full bg-primary text-white font-bold py-3 px-4 rounded-lg hover:bg-primary/90 transition-colors"
+                  onclick="submitRegistration()">
+                  Create My Wallet
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Part 2: Recovery Phrase (Hidden initially) -->
+          <div id="recoveryPhraseSection" class="hidden">
+            <div class="flex flex-wrap justify-between gap-3 p-4">
+              <div class="flex w-full flex-col gap-3 text-center">
+                <p
+                  class="text-text-light-primary dark:text-text-dark-primary text-4xl font-black leading-tight tracking-[-0.033em]">
+                  Your Secret Recovery Phrase</p>
+                <p class="text-text-light-secondary dark:text-text-dark-secondary text-base font-normal leading-normal">
+                  Save this phrase in a secure location. You'll need it to recover your wallet.</p>
+              </div>
+            </div>
+            <div class="mt-8">
+              <h2
+                class="text-text-light-primary dark:text-text-dark-primary text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-5">
+                2. Back Up Your Secret Recovery Phrase</h2>
+              <div class="p-4">
+                <div
+                  class="bg-yellow-100/50 dark:bg-yellow-500/10 border-l-4 border-yellow-500 text-yellow-800 dark:text-yellow-300 p-4 rounded-lg"
+                  role="alert">
+                  <p class="font-bold">Important: Store this phrase securely!</p>
+                  <p class="text-sm">This is the only way to recover your wallet. Never share it with anyone. We cannot
+                    recover it for you.</p>
+                </div>
+                <div
+                  class="mt-6 p-6 border border-dashed border-gray-400 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-800/20 text-center">
+                  <div
+                    class="grid grid-cols-2 md:grid-cols-3 gap-4 text-lg font-mono text-text-light-primary dark:text-text-dark-primary select-none"
+                    id="mnemonicDisplay">
+                    <!-- Mnemonic words will be inserted here -->
+                  </div>
+                </div>
+                <button id="copyBtn"
+                  class="mt-6 bg-primary/20 text-primary dark:bg-primary/30 dark:text-white font-semibold py-2 px-4 rounded-lg flex items-center gap-2 mx-auto hover:bg-primary/30 transition-colors"
+                  onclick="copyMnemonicToClipboard()">
+                  <span class="material-symbols-outlined">content_copy</span>
+                  Copy to Clipboard
+                </button>
+              </div>
+            </div>
+            <div class="p-4 mt-8">
+              <label class="flex items-start gap-3 cursor-pointer">
+                <input id="confirmCheckbox"
+                  class="form-checkbox h-5 w-5 rounded border-gray-300 dark:border-[#433b54] bg-white dark:bg-[#1f1c27] text-primary focus:ring-primary/50"
+                  type="checkbox" required />
+                <span class="text-text-light-primary dark:text-text-dark-primary text-base">I understand my secret
+                  recovery phrase is my responsibility and I have saved it securely.</span>
+              </label>
+            </div>
+            <div class="p-4 mt-4">
+              <a href="/dashboard"
+                class="w-full bg-primary text-white font-bold py-3 px-4 rounded-lg text-center block hover:bg-primary/90 transition-colors">
+                Go to Dashboard
+              </a>
+            </div>
+          </div>
+
+          <footer class="text-center py-8 text-text-light-secondary dark:text-text-dark-secondary">
+            <p>Already have a wallet? <a class="text-primary font-semibold" href="/login">Log In</a></p>
+            <div class="mt-4 text-sm flex gap-4 justify-center">
+              <a class="hover:underline" href="#">Terms of Service</a>
+              <a class="hover:underline" href="#">Privacy Policy</a>
+            </div>
+          </footer>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    // Country to phone code mapping
+    const countryPhoneCodes = {
+      'United States': '+1',
+      'Canada': '+1',
+      'Mexico': '+52',
+      'United Kingdom': '+44',
+      'Germany': '+49',
+      'France': '+33',
+      'Australia': '+61',
+      'Nigeria': '+234'
+    };
+
+    let currentMnemonic = '';
+
+    function togglePasswordVisibility() {
+      const passwordInput = document.getElementById('passwordInput');
+      const passwordIcon = document.getElementById('passwordIcon');
+
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        passwordIcon.textContent = 'visibility';
+      } else {
+        passwordInput.type = 'password';
+        passwordIcon.textContent = 'visibility_off';
+      }
+    }
+
+    function checkPasswordStrength() {
+      const passwordInput = document.getElementById('passwordInput');
+      const password = passwordInput.value;
+      const bars = document.querySelectorAll('.password-strength-bar');
+      const strengthText = document.querySelector('.password-strength-text');
+
+      let strength = 0;
+
+      if (password.length >= 8) strength++;
+      if (password.length >= 12) strength++;
+      if (/[A-Z]/.test(password)) strength++;
+      if (/[a-z]/.test(password)) strength++;
+      if (/[0-9]/.test(password)) strength++;
+      if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) strength++;
+
+      bars.forEach(bar => {
+        bar.classList.remove('bg-error', 'bg-yellow-500', 'bg-success', 'bg-gray-200', 'dark:bg-gray-700');
+      });
+
+      for (let i = 0; i < bars.length; i++) {
+        if (i < strength) {
+          if (strength <= 2) {
+            bars[i].classList.add('bg-error');
+          } else if (strength <= 4) {
+            bars[i].classList.add('bg-yellow-500');
+          } else {
+            bars[i].classList.add('bg-success');
+          }
+        } else {
+          bars[i].classList.add('bg-gray-200', 'dark:bg-gray-700');
+        }
+      }
+
+      if (strength <= 2) {
+        strengthText.textContent = 'Weak';
+        strengthText.classList.remove('text-yellow-500', 'text-success');
+        strengthText.classList.add('text-error');
+      } else if (strength <= 4) {
+        strengthText.textContent = 'Fair';
+        strengthText.classList.remove('text-error', 'text-success');
+        strengthText.classList.add('text-yellow-500');
+      } else {
+        strengthText.textContent = 'Strong';
+        strengthText.classList.remove('text-error', 'text-yellow-500');
+        strengthText.classList.add('text-success');
+      }
+    }
+
+    function updatePhoneCode() {
+      const countrySelect = document.getElementById('country');
+      const phoneInput = document.getElementById('phone');
+      const selectedCountry = countrySelect.value;
+      const phoneCode = countryPhoneCodes[selectedCountry] || '';
+
+      phoneInput.value = phoneCode + ' ';
+      phoneInput.placeholder = phoneCode + ' (555) 123-4567';
+      phoneInput.dataset.codeLength = phoneCode.length + 1;
+    }
+
+    async function submitRegistration() {
+      const formData = {
+        firstname: document.getElementById('firstname').value,
+        lastname: document.getElementById('lastname').value,
+        username: document.getElementById('username').value,
+        email: document.getElementById('email').value,
+        password: document.getElementById('passwordInput').value,
+        phone: document.getElementById('phone').value,
+        country: document.getElementById('country').value
+      };
+
+      try {
+        const response = await fetch('/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(formData)
+        });
+
+        const data = await response.json();
+
+        if (data.status === 'success') {
+          currentMnemonic = data.mnemonic;
+          displayMnemonic(data.mnemonic);
+
+          // Hide form, show recovery phrase section
+          document.getElementById('accountDetailsSection').classList.add('hidden');
+          document.getElementById('recoveryPhraseSection').classList.remove('hidden');
+        } else {
+          alert('Error: ' + data.message);
+        }
+      } catch (error) {
+        alert('Error during registration: ' + error.message);
+      }
+    }
+
+    function displayMnemonic(mnemonic) {
+      const words = mnemonic.split(' ');
+      const display = document.getElementById('mnemonicDisplay');
+      display.innerHTML = '';
+
+      words.forEach((word, index) => {
+        const span = document.createElement('span');
+        span.textContent = (index + 1) + '. ' + word;
+        display.appendChild(span);
+      });
+    }
+
+    function copyMnemonicToClipboard() {
+      navigator.clipboard.writeText(currentMnemonic).then(() => {
+        alert('Mnemonic copied to clipboard!');
+      }).catch(() => {
+        alert('Failed to copy to clipboard');
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      const countrySelect = document.getElementById('country');
+      const phoneInput = document.getElementById('phone');
+      const passwordInput = document.getElementById('passwordInput');
+
+      updatePhoneCode();
+      checkPasswordStrength();
+
+      countrySelect.addEventListener('change', updatePhoneCode);
+      passwordInput.addEventListener('input', checkPasswordStrength);
+
+      phoneInput.addEventListener('keydown', function (e) {
+        const codeLength = parseInt(this.dataset.codeLength);
+        const cursorPos = this.selectionStart;
+
+        if (e.key === 'Backspace' && cursorPos <= codeLength) {
+          e.preventDefault();
+        }
+        if (e.key === 'Delete' && cursorPos < codeLength) {
+          e.preventDefault();
+        }
+      });
+
+      phoneInput.addEventListener('paste', function (e) {
+        e.preventDefault();
+        const codeLength = parseInt(this.dataset.codeLength);
+        const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+        this.value = this.value + pastedText;
+      });
+    });
+  </script>
+</body>
+
+</html>

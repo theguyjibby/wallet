@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <title>Transaction History - Web3 Wallet</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#5b13ec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#161022",
+                        "success": "#10b981", // Emerald 500
+                        "error": "#ef4444",   // Red 500
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24
+        }
+    </style>
+</head>
+
+<body class="font-display bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200"
+    data-username="{{ name }}">
+    <div class="relative flex h-auto min-h-screen w-full flex-col">
+        <!-- Mobile Header -->
+        <header
+            class="lg:hidden flex items-center justify-between p-4 bg-background-light dark:bg-background-dark border-b border-gray-200 dark:border-white/10">
+            <div class="flex items-center gap-3">
+                <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-8"
+                    style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD9j0vULBuc7bG2lPbkSRiJ8w41veKTQwgVua6Vw24BojK5C8tw7XoW69M-pt35hqPos8p8RpF65-cZ0EiF7I01UXzMVo4KyfFuQ91unMxHt3x2vXEWUVnCtUaHIy6zQ4i_QPXw3kygAwMfOeHXMQLxXv1PtZToqWTkESHfbxo94gecTyqw12miNPNGryEt7Z7sEHqHB0ijEKSHbhNoh9604P2febWLVqq2Q40R08YyPDdjMVuBfXZjKBAWyrZ1hBHQh8IFUF8TOIk");'>
+                </div>
+                <h1 class="text-text-light-primary dark:text-white text-lg font-bold">Web3 Wallet</h1>
+            </div>
+            <button onclick="toggleSidebar()" class="text-text-light-primary dark:text-white p-2">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
+        </header>
+
+        <div class="flex h-full grow flex-row relative">
+            <!-- Overlay -->
+            <div id="sidebarOverlay" onclick="toggleSidebar()"
+                class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden backdrop-blur-sm transition-opacity"></div>
+
+            <!-- SideNavBar -->
+            <aside id="sidebar"
+                class="fixed top-0 left-0 z-50 h-full w-64 transform -translate-x-full transition-transform duration-300 lg:static lg:translate-x-0 flex flex-col justify-between bg-[#1e1e24] dark:bg-white/5 p-4 border-r border-white/10 shadow-xl lg:shadow-none">
+                <div class="flex flex-col gap-6">
+                    <div class="flex items-center justify-between px-3">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10"
+                                style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD9j0vULBuc7bG2lPbkSRiJ8w41veKTQwgVua6Vw24BojK5C8tw7XoW69M-pt35hqPos8p8RpF65-cZ0EiF7I01UXzMVo4KyfFuQ91unMxHt3x2vXEWUVnCtUaHIy6zQ4i_QPXw3kygAwMfOeHXMQLxXv1PtZToqWTkESHfbxo94gecTyqw12miNPNGryEt7Z7sEHqHB0ijEKSHbhNoh9604P2febWLVqq2Q40R08YyPDdjMVuBfXZjKBAWyrZ1hBHQh8IFUF8TOIk");'>
+                            </div>
+                            <h1 class="text-white text-lg font-bold">Web3 Wallet</h1>
+                        </div>
+                        <!-- Close button for mobile -->
+                        <button onclick="toggleSidebar()" class="lg:hidden text-white/70 hover:text-white">
+                            <span class="material-symbols-outlined">close</span>
+                        </button>
+                    </div>
+                    <nav class="flex flex-col gap-2">
+                        <a class="flex items-center gap-3 px-3 py-2 text-white/70 hover:bg-white/10 rounded-lg transition-colors"
+                            href="/dashboard">
+                            <span class="material-symbols-outlined">dashboard</span>
+                            <p class="text-sm font-medium leading-normal">Dashboard</p>
+                        </a>
+                        <a class="flex items-center gap-3 px-3 py-2 text-white/70 hover:bg-white/10 rounded-lg transition-colors"
+                            href="/dashboard#accounts">
+                            <span class="material-symbols-outlined">account_balance_wallet</span>
+                            <p class="text-sm font-medium leading-normal">Accounts</p>
+                        </a>
+                        <a class="flex items-center gap-3 px-3 py-2 text-white/70 hover:bg-white/10 rounded-lg transition-colors"
+                            href="/send_crypto">
+                            <span class="material-symbols-outlined">send</span>
+                            <p class="text-sm font-medium leading-normal">Send/Receive</p>
+                        </a>
+                        <a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/20 text-primary"
+                            href="/history">
+                            <span class="material-symbols-outlined">history</span>
+                            <p class="text-sm font-medium leading-normal">Transaction History</p>
+                        </a>
+                        <a class="flex items-center gap-3 px-3 py-2 text-white/70 hover:bg-white/10 rounded-lg transition-colors"
+                            href="#">
+                            <span class="material-symbols-outlined">settings</span>
+                            <p class="text-sm font-medium leading-normal">Settings</p>
+                        </a>
+                    </nav>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <a class="flex items-center gap-3 px-3 py-2 text-white/70 hover:bg-white/10 rounded-lg transition-colors"
+                        href="#" onclick="logout()">
+                        <span class="material-symbols-outlined">logout</span>
+                        <p class="text-sm font-medium leading-normal">Logout</p>
+                    </a>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="flex-1 p-4 lg:p-8 min-w-0 overflow-x-hidden">
+                <div class="mx-auto flex w-full max-w-7xl flex-col gap-8">
+                    <!-- PageHeading -->
+                    <div class="flex flex-wrap items-center justify-between gap-4">
+                        <h2 class="text-white text-4xl font-bold leading-tight tracking-[-0.033em]">Transaction History
+                        </h2>
+                    </div>
+
+                    <!-- Transactions Table -->
+                    <div class="flex flex-col gap-4">
+                        <div class="@container">
+                            <div class="overflow-x-auto rounded-xl border border-white/10 bg-white/5">
+                                <table class="w-full min-w-[800px]">
+                                    <thead>
+                                        <tr class="bg-white/5">
+                                            <th
+                                                class="px-6 py-4 text-left text-white text-sm font-medium leading-normal">
+                                                Date/Time</th>
+                                            <th
+                                                class="px-6 py-4 text-left text-white text-sm font-medium leading-normal">
+                                                From</th>
+                                            <th
+                                                class="px-6 py-4 text-left text-white text-sm font-medium leading-normal">
+                                                To</th>
+                                            <th
+                                                class="px-6 py-4 text-left text-white text-sm font-medium leading-normal">
+                                                Amount</th>
+                                            <th
+                                                class="px-6 py-4 text-left text-white text-sm font-medium leading-normal">
+                                                Currency</th>
+                                            <th
+                                                class="px-6 py-4 text-left text-white text-sm font-medium leading-normal">
+                                                Tx Hash</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="transactionsTableBody">
+                                        <tr class="border-t border-t-white/10">
+                                            <td class="h-[72px] px-6 py-2 text-white text-sm font-normal leading-normal"
+                                                colspan="5">Loading transactions...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        async function loadTransactions() {
+            try {
+                const response = await fetch('/transaction_history');
+                const transactions = await response.json();
+                const tableBody = document.getElementById('transactionsTableBody');
+                tableBody.innerHTML = '';
+
+                if (!Array.isArray(transactions) || transactions.length === 0) {
+                    tableBody.innerHTML = '<tr class="border-t border-t-white/10"><td class="h-[72px] px-6 py-2 text-white text-sm font-normal leading-normal" colspan="5">No transactions found.</td></tr>';
+                    return;
+                }
+
+                transactions.forEach(tx => {
+                    const row = document.createElement('tr');
+                    row.className = 'border-t border-t-white/10 hover:bg-white/5 transition-colors';
+
+                    // Format date
+                    const date = tx.timestamp ? new Date(tx.timestamp).toLocaleString() : 'N/A';
+
+                    // Determine display names
+                    const fromDisplay = tx.from_account_name !== "External"
+                        ? `<span class="text-white font-medium">${tx.from_account_name}</span><br><span class="text-xs text-[#a69db9] font-mono">${tx.from_address.substring(0, 6)}...</span>`
+                        : `<span class="text-white">External</span><br><span class="text-xs text-[#a69db9] font-mono">${tx.from_address.substring(0, 6)}...${tx.from_address.substring(tx.from_address.length - 4)}</span>`;
+
+                    const toDisplay = tx.to_account_name !== "External"
+                        ? `<span class="text-white font-medium">${tx.to_account_name}</span><br><span class="text-xs text-[#a69db9] font-mono">${tx.to_address.substring(0, 6)}...</span>`
+                        : `<span class="text-white">External</span><br><span class="text-xs text-[#a69db9] font-mono">${tx.to_address.substring(0, 6)}...${tx.to_address.substring(tx.to_address.length - 4)}</span>`;
+
+                    // Color amount based on sent/received
+                    const amountClass = tx.is_sent ? 'text-white' : 'text-success';
+                    const amountPrefix = tx.is_sent ? '-' : '+';
+
+                    row.innerHTML = `
+                        <td class="h-[72px] px-6 py-2 text-white/70 text-sm font-normal leading-normal whitespace-nowrap">${date}</td>
+                        <td class="h-[72px] px-6 py-2 text-sm leading-normal">${fromDisplay}</td>
+                        <td class="h-[72px] px-6 py-2 text-sm leading-normal">${toDisplay}</td>
+                        <td class="h-[72px] px-6 py-2 ${amountClass} text-sm font-medium leading-normal">${amountPrefix}${tx.amount}</td>
+                        <td class="h-[72px] px-6 py-2 text-white text-sm font-normal leading-normal">${tx.crypto_currency}</td>
+                        <td class="h-[72px] px-6 py-2 text-[#a69db9] text-sm font-normal leading-normal font-mono">
+                            <a href="https://sepolia.etherscan.io/tx/${tx.tx_hash}" target="_blank" class="hover:text-primary transition-colors flex items-center gap-1">
+                                ${tx.tx_hash.substring(0, 10)}...
+                                <span class="material-symbols-outlined text-[14px]">open_in_new</span>
+                            </a>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+
+
+            } catch (error) {
+                console.error('Error loading transactions:', error);
+                document.getElementById('transactionsTableBody').innerHTML = '<tr class="border-t border-t-white/10"><td class="h-[72px] px-6 py-2 text-white/70 text-sm font-normal leading-normal" colspan="5">Connection error. Retrying...</td></tr>';
+                // Retry automatically
+                setTimeout(loadTransactions, 3000);
+            }
+        }
+
+        function logout() {
+            fetch('/logout')
+                .then(() => {
+                    window.location.href = '/';
+                })
+                .catch(error => console.error('Logout error:', error));
+        }
+
+        document.addEventListener('DOMContentLoaded', loadTransactions);
+
+        // Sidebar Toggle Logic
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+        function toggleSidebar() {
+            const isClosed = sidebar.classList.contains('-translate-x-full');
+            if (isClosed) {
+                // Open
+                sidebar.classList.remove('-translate-x-full');
+                sidebarOverlay.classList.remove('hidden');
+            } else {
+                // Close
+                sidebar.classList.add('-translate-x-full');
+                sidebarOverlay.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+
+</html>

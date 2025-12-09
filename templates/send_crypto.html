@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+  <title>Transfer Crypto - Web3 Wallet</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com" rel="preconnect" />
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&amp;display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+    rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#4A90E2",
+            "background-light": "#F4F7FA",
+            "background-dark": "#161022",
+            "text-light-primary": "#333333",
+            "text-light-secondary": "#777777",
+            "text-dark-primary": "#ffffff",
+            "text-dark-secondary": "#a69db9",
+            "error": "#D0021B",
+            "success": "#50E3C2"
+          },
+          fontFamily: {
+            "display": ["Space Grotesk", "sans-serif"]
+          },
+          borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+        },
+      },
+    }
+  </script>
+</head>
+
+<body>
+  <div
+    class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark font-display group/design-root overflow-x-hidden">
+    <div class="layout-container flex h-full grow flex-col">
+      <header class="flex justify-between items-center py-6 px-4 max-w-[960px] mx-auto w-full">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-primary text-3xl">account_balance_wallet</span>
+          <span class="text-xl font-bold text-text-light-primary dark:text-text-dark-primary">Web3 Wallet</span>
+        </div>
+        <a href="/dashboard"
+          class="text-sm font-medium text-text-light-secondary dark:text-text-dark-secondary hover:text-primary transition-colors flex items-center gap-1">
+          <span class="material-symbols-outlined text-lg">arrow_back</span>
+          Dashboard
+        </a>
+      </header>
+
+      <main class="px-4 flex flex-1 justify-center py-5">
+        <div class="layout-content-container flex flex-col max-w-[600px] flex-1">
+
+          <div class="flex flex-col gap-3 text-center mb-8">
+            <h1 id="pageTitle"
+              class="text-text-light-primary dark:text-text-dark-primary text-4xl font-black leading-tight tracking-[-0.033em]">
+              Transfer Crypto</h1>
+            <p class="text-text-light-secondary dark:text-text-dark-secondary text-base font-normal leading-normal">
+              Manage your assets securely.</p>
+          </div>
+
+          <div
+            class="bg-white dark:bg-[#1f1c27] rounded-xl shadow-sm border border-gray-200 dark:border-[#433b54] overflow-hidden">
+
+            <!-- Toggle Switch -->
+            <div class="grid grid-cols-2 border-b border-gray-200 dark:border-[#433b54]">
+              <button onclick="setMode('send')" id="tabSend"
+                class="py-4 text-center font-bold text-primary border-b-2 border-primary transition-colors hover:bg-black/5 dark:hover:bg-white/5">
+                Send
+              </button>
+              <button onclick="setMode('receive')" id="tabReceive"
+                class="py-4 text-center font-bold text-text-light-secondary dark:text-text-dark-secondary border-b-2 border-transparent transition-colors hover:bg-black/5 dark:hover:bg-white/5">
+                Receive
+              </button>
+            </div>
+
+            <div class="p-6">
+
+              <!-- Account Selector (Always Visible) -->
+              <div class="flex flex-col gap-2 mb-6">
+                <label class="text-text-light-primary dark:text-text-dark-primary text-base font-medium leading-normal"
+                  id="accountLabel">From Account</label>
+                <select id="fromAccount"
+                  class="form-select flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light-primary dark:text-text-dark-primary focus:outline-0 border border-gray-300 dark:border-[#433b54] bg-white dark:bg-[#161022] focus:border-primary focus:ring-2 focus:ring-primary/30 h-12 p-[15px] text-base font-normal leading-normal"
+                  required>
+                  <option value="">Loading accounts...</option>
+                </select>
+                <p id="fromBalance"
+                  class="text-sm text-text-light-secondary dark:text-text-dark-secondary text-right font-mono">Balance:
+                  — ETH</p>
+              </div>
+
+              <!-- SEND FORM -->
+              <form id="sendForm" class="flex flex-col gap-6" onsubmit="return submitSend(event)">
+
+                <!-- Asset -->
+                <div class="flex flex-col gap-2">
+                  <label
+                    class="text-text-light-primary dark:text-text-dark-primary text-base font-medium leading-normal">Asset</label>
+                  <select id="asset"
+                    class="form-select flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light-primary dark:text-text-dark-primary focus:outline-0 border border-gray-300 dark:border-[#433b54] bg-white dark:bg-[#161022] focus:border-primary focus:ring-2 focus:ring-primary/30 h-12 p-[15px] text-base font-normal leading-normal">
+                    <option value="ETH">ETH</option>
+                    <option value="USDT" disabled class="text-gray-400 dark:text-gray-600">USDT (ERC20) - Coming Soon
+                    </option>
+                    <option value="DAI" disabled class="text-gray-400 dark:text-gray-600">DAI (ERC20) - Coming Soon
+                    </option>
+                  </select>
+                  <div id="tokenInfo" class="hidden text-xs text-blue-500 bg-blue-50 dark:bg-blue-900/20 p-2 rounded">
+                    Selected token will use the configured contract address.
+                  </div>
+                </div>
+
+                <!-- To Address -->
+                <div class="flex flex-col gap-2">
+                  <label
+                    class="text-text-light-primary dark:text-text-dark-primary text-base font-medium leading-normal">To
+                    Address</label>
+                  <input id="toAddress"
+                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light-primary dark:text-text-dark-primary focus:outline-0 border border-gray-300 dark:border-[#433b54] bg-white dark:bg-[#161022] focus:border-primary focus:ring-2 focus:ring-primary/30 h-12 placeholder:text-text-light-secondary dark:placeholder:text-[#a69db9] p-[15px] text-base font-normal leading-normal font-mono"
+                    placeholder="0x..." required />
+                </div>
+
+                <!-- Amount -->
+                <div class="flex flex-col gap-2">
+                  <label
+                    class="text-text-light-primary dark:text-text-dark-primary text-base font-medium leading-normal">Amount</label>
+                  <div class="relative">
+                    <input id="amount" type="number" step="any" min="0"
+                      class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light-primary dark:text-text-dark-primary focus:outline-0 border border-gray-300 dark:border-[#433b54] bg-white dark:bg-[#161022] focus:border-primary focus:ring-2 focus:ring-primary/30 h-12 placeholder:text-text-light-secondary dark:placeholder:text-[#a69db9] p-[15px] text-base font-normal leading-normal"
+                      placeholder="0.00" required />
+                    <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                      <span class="text-text-light-secondary dark:text-text-dark-secondary font-medium"
+                        id="amountCurrencyLabel">ETH</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Password -->
+                <div class="flex flex-col gap-2">
+                  <label
+                    class="text-text-light-primary dark:text-text-dark-primary text-base font-medium leading-normal">Password</label>
+                  <input id="password" type="password"
+                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light-primary dark:text-text-dark-primary focus:outline-0 border border-gray-300 dark:border-[#433b54] bg-white dark:bg-[#161022] focus:border-primary focus:ring-2 focus:ring-primary/30 h-12 placeholder:text-text-light-secondary dark:placeholder:text-[#a69db9] p-[15px] text-base font-normal leading-normal"
+                    placeholder="To decrypt private key" required />
+                </div>
+
+                <!-- Status Message -->
+                <div id="status" class="text-sm font-medium min-h-[20px]"></div>
+
+                <!-- Buttons -->
+                <div class="grid grid-cols-2 gap-4 pt-2">
+                  <button id="clearBtn" type="button"
+                    class="w-full bg-transparent border border-gray-300 dark:border-[#433b54] text-text-light-primary dark:text-text-dark-primary font-bold py-3 px-4 rounded-lg hover:bg-gray-100 dark:hover:bg-[#2a2635] transition-colors"
+                    onclick="clearForm()">
+                    Clear
+                  </button>
+                  <button id="sendBtn" type="submit"
+                    class="w-full bg-primary text-white font-bold py-3 px-4 rounded-lg hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">
+                    Send Crypto
+                  </button>
+                </div>
+              </form>
+
+              <!-- RECEIVE VIEW -->
+              <div id="receiveView" class="hidden flex flex-col items-center justify-center py-8 gap-6 text-center">
+                <div class="w-full">
+                  <p class="text-text-light-secondary dark:text-text-dark-secondary text-sm mb-2">My Address for <span
+                      id="receiveAccountName"
+                      class="font-bold text-text-light-primary dark:text-text-dark-primary"></span></p>
+
+                  <div
+                    class="bg-black/5 dark:bg-black/30 p-4 rounded-xl border border-gray-200 dark:border-white/10 break-all cursor-pointer hover:bg-black/10 dark:hover:bg-white/5 transition-colors group relative"
+                    onclick="copyAddress()">
+                    <p id="receiveAddressDisplay"
+                      class="font-mono text-lg text-text-light-primary dark:text-text-dark-primary select-all"></p>
+                    <div
+                      class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/60 dark:bg-black/60 rounded-xl">
+                      <span class="text-white font-bold flex items-center gap-2"><span
+                          class="material-symbols-outlined">content_copy</span> Copy</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                  <p class="text-text-light-secondary dark:text-text-dark-secondary text-sm">Scan to receive</p>
+                  <!-- Placeholder for QR Code if needed, for now just an icon -->
+                  <div class="size-32 bg-white p-2 rounded-lg mx-auto flex items-center justify-center">
+                    <span class="material-symbols-outlined text-black text-6xl">qr_code_2</span>
+                  </div>
+                </div>
+
+                <button onclick="copyAddress()"
+                  class="flex items-center justify-center gap-2 w-full max-w-xs py-3 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors font-bold mt-4">
+                  <span class="material-symbols-outlined">content_copy</span>
+                  Copy Address
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    // --- STATE MANAGEMENT ---
+    let currentMode = 'send';
+
+    function setMode(mode) {
+      if (mode !== 'send' && mode !== 'receive') return;
+      currentMode = mode;
+
+      // Update Tab Styles
+      const tabSend = document.getElementById('tabSend');
+      const tabReceive = document.getElementById('tabReceive');
+
+      const activeClasses = ['text-primary', 'border-primary'];
+      const inactiveClasses = ['text-text-light-secondary', 'dark:text-text-dark-secondary', 'border-transparent'];
+
+      if (mode === 'send') {
+        tabSend.classList.add(...activeClasses);
+        tabSend.classList.remove(...inactiveClasses);
+        tabReceive.classList.remove(...activeClasses);
+        tabReceive.classList.add(...inactiveClasses);
+
+        document.getElementById('sendForm').classList.remove('hidden');
+        document.getElementById('receiveView').classList.add('hidden');
+        document.getElementById('accountLabel').textContent = 'From Account';
+      } else {
+        tabReceive.classList.add(...activeClasses);
+        tabReceive.classList.remove(...inactiveClasses);
+        tabSend.classList.remove(...activeClasses);
+        tabSend.classList.add(...inactiveClasses);
+
+        document.getElementById('sendForm').classList.add('hidden');
+        document.getElementById('receiveView').classList.remove('hidden');
+        document.getElementById('accountLabel').textContent = 'Receiving Account';
+
+        // Update receive details based on current selection
+        updateReceiveView();
+      }
+
+      // Update URL without reloading
+      const url = new URL(window.location);
+      url.searchParams.set('mode', mode);
+      window.history.pushState({}, '', url);
+    }
+
+    // --- LOGIC ---
+    function isHexAddress(addr) {
+      return typeof addr === 'string' && /^0x[a-fA-F0-9]{40}$/.test(addr);
+    }
+
+    async function loadAccounts() {
+      const select = document.getElementById('fromAccount');
+      select.innerHTML = '<option value="">Loading accounts...</option>';
+      try {
+        const res = await fetch('/accounts');
+        const accounts = await res.json();
+        select.innerHTML = '';
+        if (!Array.isArray(accounts) || accounts.length === 0) {
+          select.innerHTML = '<option value="">No accounts available</option>';
+          document.getElementById('fromBalance').textContent = 'Balance: — ETH';
+          return;
+        }
+        accounts.forEach(acc => {
+          const opt = document.createElement('option');
+          opt.value = acc.address;
+          opt.textContent = `${acc.account_name} — ${acc.address.substring(0, 6)}...${acc.address.slice(-4)}`;
+          opt.dataset.balance = acc.balance || '0';
+          opt.dataset.name = acc.account_name; // Store name for display
+          select.appendChild(opt);
+        });
+
+        // Check for account query param and select it
+        const urlParams = new URLSearchParams(window.location.search);
+        const preSelectedAccount = urlParams.get('account');
+        if (preSelectedAccount) {
+          const optionToSelect = select.querySelector(`option[value="${preSelectedAccount}"]`);
+          if (optionToSelect) {
+            select.value = preSelectedAccount;
+          }
+        }
+
+        // Update balance and views
+        updateSelectedBalance();
+        updateReceiveView();
+
+      } catch (err) {
+        select.innerHTML = '<option value="">Connection lost. Retrying...</option>';
+        document.getElementById('fromBalance').textContent = 'Balance: ...';
+        console.error(err);
+        // Retry automatically
+        setTimeout(loadAccounts, 3000);
+      }
+    }
+
+    function updateSelectedBalance() {
+      const sel = document.getElementById('fromAccount');
+      const opt = sel.options[sel.selectedIndex];
+      const bal = opt ? parseFloat(opt.dataset.balance || 0) : 0;
+      document.getElementById('fromBalance').textContent = 'Balance: ' + bal.toFixed(6) + ' ETH';
+
+      // Also update receive view whenever selection changes
+      if (currentMode === 'receive') {
+        updateReceiveView();
+      }
+    }
+
+    function updateReceiveView() {
+      const sel = document.getElementById('fromAccount');
+      if (!sel.options[sel.selectedIndex]) return;
+
+      const opt = sel.options[sel.selectedIndex];
+      const address = opt.value;
+      const name = opt.dataset.name || 'Account';
+
+      document.getElementById('receiveAccountName').textContent = name;
+      document.getElementById('receiveAddressDisplay').textContent = address;
+    }
+
+    function copyAddress() {
+      const addr = document.getElementById('fromAccount').value;
+      if (addr) {
+        navigator.clipboard.writeText(addr).then(() => {
+          alert('Address copied to clipboard!');
+        });
+      }
+    }
+
+    document.getElementById('fromAccount')?.addEventListener('change', updateSelectedBalance);
+
+    // Update currency label and token info
+    document.getElementById('asset')?.addEventListener('change', (e) => {
+      const val = e.target.value;
+      const tok = document.getElementById('tokenInfo');
+      const label = document.getElementById('amountCurrencyLabel');
+
+      label.textContent = val;
+      tok.classList.toggle('hidden', val === 'ETH');
+    });
+
+    function clearForm() {
+      document.getElementById('toAddress').value = '';
+      document.getElementById('amount').value = '';
+      document.getElementById('password').value = '';
+      document.getElementById('status').textContent = '';
+      document.getElementById('status').className = 'text-sm font-medium min-h-[20px]';
+    }
+
+    async function submitSend(event) {
+      event.preventDefault();
+      const from = document.getElementById('fromAccount').value;
+      const to = document.getElementById('toAddress').value.trim();
+      const asset = document.getElementById('asset').value;
+      const amount = document.getElementById('amount').value;
+      const password = document.getElementById('password').value;
+      const statusEl = document.getElementById('status');
+      statusEl.textContent = '';
+      statusEl.className = 'text-sm font-medium min-h-[20px]';
+
+      if (!from) {
+        statusEl.textContent = 'Select a source account.';
+        statusEl.classList.add('text-error');
+        return;
+      }
+      if (!isHexAddress(to)) {
+        statusEl.textContent = 'Enter a valid recipient address (0x...).';
+        statusEl.classList.add('text-error');
+        return;
+      }
+      if (!amount || Number(amount) <= 0) {
+        statusEl.textContent = 'Enter a valid amount.';
+        statusEl.classList.add('text-error');
+        return;
+      }
+      if (!password) {
+        statusEl.textContent = 'Password required to decrypt the private key.';
+        statusEl.classList.add('text-error');
+        return;
+      }
+
+      // Optional balance check (basic)
+      const selOpt = document.getElementById('fromAccount').selectedOptions[0];
+      const balance = parseFloat(selOpt?.dataset?.balance || 0);
+      if (asset === 'ETH' && Number(amount) > balance) {
+        statusEl.textContent = 'Insufficient ETH balance for this account.';
+        statusEl.classList.add('text-error');
+        return;
+      }
+
+      const payload = {
+        from_address: from,
+        to_address: to,
+        amount: amount,
+        crypto_currency: asset,
+        password: password
+      };
+
+      const sendBtn = document.getElementById('sendBtn');
+      const originalText = '<span class="material-symbols-outlined text-lg">send</span> Send Crypto';
+      sendBtn.disabled = true;
+      sendBtn.innerHTML = '<span class="material-symbols-outlined animate-spin text-sm mr-2">progress_activity</span>Sending...';
+
+      async function attemptSend(retriesLeft) {
+        try {
+          const resp = await fetch('/send_crypto', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          const data = await resp.json();
+
+          if (resp.ok && data && data.tx_hash) {
+            // Success
+            const tx = data.tx_hash;
+            statusEl.className = 'text-sm font-medium min-h-[20px] text-success break-all';
+            statusEl.innerHTML = `Transaction submitted successfully!<br><a class="underline hover:text-white" href="https://sepolia.etherscan.io/tx/${tx}" target="_blank" rel="noreferrer">View on Etherscan</a>`;
+            setTimeout(() => window.location.href = '/dashboard', 4000);
+
+            // Cleanup
+            sendBtn.disabled = false;
+            sendBtn.innerHTML = originalText;
+            document.getElementById('password').value = '';
+
+          } else {
+            // Server returned error (check status code)
+            const err = data?.error || data?.message || 'Failed to send transaction';
+
+            // If it's a 500 error, we might consider retrying? 
+            // Usually 400s are client errors (bad password, funds) - DO NOT RETRY
+            // 500s might be network/node issues - RETRY
+            if (resp.status >= 500 && retriesLeft > 0) {
+              console.warn(`Server error ${resp.status}, retrying... (${retriesLeft} left)`);
+              statusEl.className = 'text-sm font-medium min-h-[20px] text-text-light-secondary dark:text-text-dark-secondary';
+              statusEl.textContent = `Server error. Retrying... (${5 - retriesLeft + 1}/5)`;
+              setTimeout(() => attemptSend(retriesLeft - 1), 2000);
+            } else {
+              // Non-retriable error (or out of retries)
+              statusEl.className = 'text-sm font-medium min-h-[20px] text-error';
+              statusEl.textContent = 'Error: ' + err;
+              sendBtn.disabled = false;
+              sendBtn.innerHTML = originalText;
+              document.getElementById('password').value = '';
+            }
+          }
+        } catch (err) {
+          console.error(err);
+          // Network Error (fetch failed) - RETRY
+          if (retriesLeft > 0) {
+            statusEl.className = 'text-sm font-medium min-h-[20px] text-text-light-secondary dark:text-text-dark-secondary';
+            statusEl.textContent = `Connection failed. Retrying... (${5 - retriesLeft + 1}/5)`;
+            setTimeout(() => attemptSend(retriesLeft - 1), 2000);
+          } else {
+            // Out of retries
+            statusEl.className = 'text-sm font-medium min-h-[20px] text-error';
+            statusEl.textContent = 'Connection failed. Please check your internet connection and try again.';
+            sendBtn.disabled = false;
+            sendBtn.innerHTML = originalText;
+            document.getElementById('password').value = '';
+          }
+        }
+      }
+
+      // Start attempt with 5 retries
+      attemptSend(5);
+
+      return false;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadAccounts();
+
+      // Check Mode from URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const mode = urlParams.get('mode');
+      if (mode === 'receive') {
+        setMode('receive');
+      } else {
+        setMode('send');
+      }
+    });
+  </script>
+</body>
+
+</html>

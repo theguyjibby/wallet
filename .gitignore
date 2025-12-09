@@ -1,0 +1,13 @@
+# IMPORTANT: Add .env to .gitignore to prevent committing secrets!
+.env
+__pycache__/
+*.pyc
+*.pyo
+*.db
+instance/
+.pytest_cache/
+.coverage
+htmlcov/
+dist/
+build/
+*.egg-info/
