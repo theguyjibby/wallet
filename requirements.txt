@@ -8,3 +8,5 @@ Authlib
 web3
 requests
 python-dotenv
+gunicorn
+psycopg2-binary
