@@ -230,27 +230,43 @@ def forgot_password_route():
         data = request.get_json()
         email = data.get("email")
         
+        print(f"[FORGOT_PASSWORD] Received request for email: {email}")
+        
         if not email:
+            print("[FORGOT_PASSWORD] No email provided")
             return jsonify({"message": "Email is required."}), 400
         
         user = User.query.filter_by(email=email).first()
         if user:
+            print(f"[FORGOT_PASSWORD] User found: {user.username}")
             try:
                 # Check if mail is configured
-                if not app.config.get('MAIL_USERNAME') or not app.config.get('MAIL_PASSWORD'):
+                mail_username = app.config.get('MAIL_USERNAME')
+                mail_password = app.config.get('MAIL_PASSWORD')
+                
+                print(f"[FORGOT_PASSWORD] Mail configured: username={bool(mail_username)}, password={bool(mail_password)}")
+                
+                if not mail_username or not mail_password:
+                    print("[FORGOT_PASSWORD] Mail not configured properly")
                     return jsonify({
                         "message": "Email service is not configured. Please contact support or try again later."
                     }), 503
                 
+                print("[FORGOT_PASSWORD] Attempting to send reset email...")
                 send_reset_email(user)
+                print("[FORGOT_PASSWORD] Reset email sent successfully")
                 return jsonify({"message": "Password reset link sent to your email"}), 200
                 
             except Exception as e:
-                # Log the error for debugging
-                print(f"Error sending reset email: {e}")
+                # Log the full error for debugging
+                import traceback
+                print(f"[FORGOT_PASSWORD] Error sending reset email: {e}")
+                print(f"[FORGOT_PASSWORD] Full traceback:\n{traceback.format_exc()}")
                 return jsonify({
                     "message": "Failed to send reset email. Please try again later or contact support."
                 }), 500
+        else:
+            print(f"[FORGOT_PASSWORD] No user found for email: {email}")
 
         # Don't reveal if email exists or not for security
         return jsonify({"message": "If this email is registered, you will receive a reset link."}), 200

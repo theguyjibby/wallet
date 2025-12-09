@@ -195,6 +195,7 @@
 
   <script>
     let currentEthPrice = 0;
+    let accountsData = []; // Store accounts globally for price updates
 
     async function fetchEthPrice() {
       try {
@@ -206,6 +207,9 @@
           // Only update display if price is valid
           if (currentEthPrice > 0) {
             document.getElementById('ethPriceDisplay').textContent = '$' + currentEthPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+            // Update total balance with new price if we have accounts data
+            updateTotalBalance();
           } else {
             document.getElementById('ethPriceDisplay').textContent = 'Price unavailable';
           }
@@ -215,6 +219,16 @@
         document.getElementById('ethPriceDisplay').textContent = 'Price unavailable';
         // Don't retry aggressively - server has caching and retry logic built in
         // The automatic interval (every 3 minutes) will handle retries
+      }
+    }
+
+    function updateTotalBalance() {
+      if (accountsData.length > 0 && currentEthPrice > 0) {
+        let totalBalance = 0;
+        accountsData.forEach(account => {
+          totalBalance += parseFloat(account.balance || 0);
+        });
+        document.getElementById('totalBalance').textContent = '$' + (totalBalance * currentEthPrice).toFixed(2);
       }
     }
 
@@ -229,15 +243,14 @@
         const accounts = await accountsResponse.json();
 
         if (Array.isArray(accounts)) {
+          // Store accounts globally for price updates
+          accountsData = accounts;
+
           // Update total accounts
           document.getElementById('totalAccounts').textContent = accounts.length;
 
-          // Calculate total balance
-          let totalBalance = 0;
-          accounts.forEach(account => {
-            totalBalance += parseFloat(account.balance || 0);
-          });
-          document.getElementById('totalBalance').textContent = '$' + (totalBalance * currentEthPrice).toFixed(2);
+          // Calculate and display total balance
+          updateTotalBalance();
 
           // Populate accounts table
           const tableBody = document.getElementById('accountsTableBody');
@@ -284,9 +297,10 @@
     }
 
     // Load dashboard on page load
-    document.addEventListener('DOMContentLoaded', () => {
-      fetchEthPrice(); // Fetch price immediately
-      loadDashboard();
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Fetch ETH price FIRST, then load dashboard
+      await fetchEthPrice(); // Wait for price to load
+      loadDashboard(); // Now this has the correct price
 
       // Auto-refresh data every 15 seconds
       setInterval(loadDashboard, 15000);
