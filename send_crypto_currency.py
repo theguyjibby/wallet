@@ -67,19 +67,52 @@ def check_balance(address):
     return balance_eth
 
 def get_eth_price_usd():
-    try:
-        url ="https://api.coingecko.com/api/v3/simple/price"
-        params= {
-            "ids": "ethereum",
-            "vs_currencies": "usd"
-
-        }
-        response = requests.get(url, params=params)
-        data = response.json()
-        price = data['ethereum']['usd']
-        return price
-    except Exception as e:
-        return {"error": str(e)}
+    """
+    Fetch current ETH price in USD from CoinGecko API.
+    Automatically retries up to 3 times with exponential backoff.
+    Returns float price or 0 if all retries fail.
+    """
+    import time
+    
+    max_retries = 3
+    base_delay = 1  # Start with 1 second delay
+    
+    for attempt in range(max_retries):
+        try:
+            url = "https://api.coingecko.com/api/v3/simple/price"
+            params = {
+                "ids": "ethereum",
+                "vs_currencies": "usd"
+            }
+            response = requests.get(url, params=params, timeout=5)
+            response.raise_for_status()  # Raise exception for bad status codes
+            data = response.json()
+            
+            if 'ethereum' in data and 'usd' in data['ethereum']:
+                price = float(data['ethereum']['usd'])
+                return price
+            else:
+                print(f"Unexpected API response format: {data}")
+                # Don't return yet, try again
+                
+        except requests.exceptions.Timeout:
+            print(f"ETH price API request timed out (attempt {attempt + 1}/{max_retries})")
+        except requests.exceptions.RequestException as e:
+            print(f"ETH price API request failed: {e} (attempt {attempt + 1}/{max_retries})")
+        except (KeyError, ValueError, TypeError) as e:
+            print(f"Error parsing ETH price: {e} (attempt {attempt + 1}/{max_retries})")
+        except Exception as e:
+            print(f"Unexpected error fetching ETH price: {e} (attempt {attempt + 1}/{max_retries})")
+        
+        # Wait before retrying (exponential backoff: 1s, 2s, 4s)
+        if attempt < max_retries - 1:
+            delay = base_delay * (2 ** attempt)
+            print(f"Retrying in {delay} seconds...")
+            time.sleep(delay)
+    
+    # All retries failed, return 0 as fallback
+    print("All ETH price fetch attempts failed. Returning 0.")
+    return 0
 
 
 if __name__ == "__main__":

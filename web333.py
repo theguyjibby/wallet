@@ -425,6 +425,7 @@ def history_page():
 
 @app.route('/get_eth_price_usd', methods=['GET'])
 def get_eth_price_usd_route():
+    # get_eth_price_usd now always returns a number (never None)
     return jsonify(get_eth_price_usd())
 
 

@@ -385,23 +385,92 @@
       countrySelect.addEventListener('change', updatePhoneCode);
       passwordInput.addEventListener('input', checkPasswordStrength);
 
+      // Protect country code but allow proper editing
       phoneInput.addEventListener('keydown', function (e) {
-        const codeLength = parseInt(this.dataset.codeLength);
-        const cursorPos = this.selectionStart;
+        const codeLength = parseInt(this.dataset.codeLength) || 0;
+        const cursorStart = this.selectionStart;
+        const cursorEnd = this.selectionEnd;
+        const hasSelection = cursorStart !== cursorEnd;
 
-        if (e.key === 'Backspace' && cursorPos <= codeLength) {
-          e.preventDefault();
+        // Allow deletion if text is selected (user wants to clear selection)
+        if (hasSelection) {
+          // If selection includes protected area, adjust it
+          if (cursorStart < codeLength) {
+            e.preventDefault();
+            // Keep country code, remove rest of selection
+            this.setSelectionRange(codeLength, cursorEnd);
+            if (e.key === 'Backspace' || e.key === 'Delete') {
+              const currentValue = this.value;
+              const countryCode = currentValue.substring(0, codeLength);
+              const afterSelection = currentValue.substring(cursorEnd);
+              this.value = countryCode + afterSelection;
+              this.setSelectionRange(codeLength, codeLength);
+            }
+            return;
+          }
+          return; // Allow normal deletion of selected text
         }
-        if (e.key === 'Delete' && cursorPos < codeLength) {
+
+        // Prevent backspace/delete from removing country code
+        if (e.key === 'Backspace' && cursorStart <= codeLength) {
           e.preventDefault();
+          return;
+        }
+        if (e.key === 'Delete' && cursorStart < codeLength) {
+          e.preventDefault();
+          return;
+        }
+
+        // Prevent cursor from moving into protected area with arrow keys
+        if (e.key === 'ArrowLeft' && cursorStart <= codeLength) {
+          e.preventDefault();
+          return;
+        }
+        if (e.key === 'Home') {
+          e.preventDefault();
+          this.setSelectionRange(codeLength, codeLength);
+          return;
         }
       });
 
+      // Prevent clicking/moving cursor into protected area
+      phoneInput.addEventListener('click', function () {
+        const codeLength = parseInt(this.dataset.codeLength) || 0;
+        if (this.selectionStart < codeLength) {
+          this.setSelectionRange(codeLength, codeLength);
+        }
+      });
+
+      // Fix paste behavior
       phoneInput.addEventListener('paste', function (e) {
         e.preventDefault();
-        const codeLength = parseInt(this.dataset.codeLength);
+        const codeLength = parseInt(this.dataset.codeLength) || 0;
         const pastedText = (e.clipboardData || window.clipboardData).getData('text');
-        this.value = this.value + pastedText;
+        const currentValue = this.value;
+        const cursorPos = Math.max(this.selectionStart, codeLength);
+
+        // Insert pasted text after country code
+        const beforeCursor = currentValue.substring(0, cursorPos);
+        const afterCursor = currentValue.substring(this.selectionEnd);
+        this.value = beforeCursor + pastedText + afterCursor;
+
+        const newCursorPos = cursorPos + pastedText.length;
+        this.setSelectionRange(newCursorPos, newCursorPos);
+      });
+
+      // Prevent input from being cleared accidentally
+      phoneInput.addEventListener('input', function () {
+        const codeLength = parseInt(this.dataset.codeLength) || 0;
+        const countrySelect = document.getElementById('country');
+        const selectedCountry = countrySelect.value;
+        const phoneCode = countryPhoneCodes[selectedCountry] || '';
+
+        // If country code was removed, restore it
+        if (this.value.length < codeLength || !this.value.startsWith(phoneCode)) {
+          const userInput = this.value.substring(codeLength);
+          this.value = phoneCode + ' ' + userInput;
+          this.setSelectionRange(this.value.length, this.value.length);
+        }
       });
     });
   </script>
