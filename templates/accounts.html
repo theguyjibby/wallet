@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
-    <title>Transaction History - Web3 Wallet</title>
+    <title>My Accounts - Web3 Wallet</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com" rel="preconnect" />
     <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
@@ -23,8 +23,8 @@
                         "primary": "#5b13ec",
                         "background-light": "#f6f6f8",
                         "background-dark": "#161022",
-                        "success": "#10b981", // Emerald 500
-                        "error": "#ef4444",   // Red 500
+                        "success": "#10b981",
+                        "error": "#ef4444",
                     },
                     fontFamily: {
                         "display": ["Space Grotesk", "sans-serif"]
@@ -90,7 +90,7 @@
                             <span class="material-symbols-outlined">dashboard</span>
                             <p class="text-sm font-medium leading-normal">Dashboard</p>
                         </a>
-                        <a class="flex items-center gap-3 px-3 py-2 text-white/70 hover:bg-white/10 rounded-lg transition-colors"
+                        <a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/20 text-primary"
                             href="/accounts_view">
                             <span class="material-symbols-outlined">account_balance_wallet</span>
                             <p class="text-sm font-medium leading-normal">Accounts</p>
@@ -100,7 +100,7 @@
                             <span class="material-symbols-outlined">send</span>
                             <p class="text-sm font-medium leading-normal">Send/Receive</p>
                         </a>
-                        <a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/20 text-primary"
+                        <a class="flex items-center gap-3 px-3 py-2 text-white/70 hover:bg-white/10 rounded-lg transition-colors"
                             href="/history">
                             <span class="material-symbols-outlined">history</span>
                             <p class="text-sm font-medium leading-normal">Transaction History</p>
@@ -126,45 +126,21 @@
                 <div class="mx-auto flex w-full max-w-7xl flex-col gap-8">
                     <!-- PageHeading -->
                     <div class="flex flex-wrap items-center justify-between gap-4">
-                        <h2 class="text-white text-4xl font-bold leading-tight tracking-[-0.033em]">Transaction History
-                        </h2>
+                        <h2 class="text-white text-4xl font-bold leading-tight tracking-[-0.033em]">My Accounts</h2>
+                        <button
+                            class="flex min-w-[84px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-12 px-6 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors"
+                            onclick="window.location.href='/create_account'">
+                            <span class="material-symbols-outlined">add_circle</span>
+                            <span class="truncate">Create Account</span>
+                        </button>
                     </div>
 
-                    <!-- Transactions Table -->
-                    <div class="flex flex-col gap-4">
-                        <div class="@container">
-                            <div class="overflow-x-auto rounded-xl border border-white/10 bg-white/5">
-                                <table class="w-full min-w-[800px]">
-                                    <thead>
-                                        <tr class="bg-white/5">
-                                            <th
-                                                class="px-6 py-4 text-left text-white text-sm font-medium leading-normal">
-                                                Date/Time</th>
-                                            <th
-                                                class="px-6 py-4 text-left text-white text-sm font-medium leading-normal">
-                                                From</th>
-                                            <th
-                                                class="px-6 py-4 text-left text-white text-sm font-medium leading-normal">
-                                                To</th>
-                                            <th
-                                                class="px-6 py-4 text-left text-white text-sm font-medium leading-normal">
-                                                Amount</th>
-                                            <th
-                                                class="px-6 py-4 text-left text-white text-sm font-medium leading-normal">
-                                                Currency</th>
-                                            <th
-                                                class="px-6 py-4 text-left text-white text-sm font-medium leading-normal">
-                                                Tx Hash</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="transactionsTableBody">
-                                        <tr class="border-t border-t-white/10">
-                                            <td class="h-[72px] px-6 py-2 text-white text-sm font-normal leading-normal"
-                                                colspan="5">Loading transactions...</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                    <!-- Accounts Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="accountsGrid">
+                        <!-- Accounts will be loaded here -->
+                        <div
+                            class="col-span-full flex items-center justify-center p-12 bg-white/5 border border-white/10 rounded-xl">
+                            <p class="text-white/70">Loading accounts...</p>
                         </div>
                     </div>
                 </div>
@@ -173,60 +149,73 @@
     </div>
 
     <script>
-        async function loadTransactions() {
+        async function loadAccounts() {
             try {
-                const response = await fetch('/transaction_history');
-                const transactions = await response.json();
-                const tableBody = document.getElementById('transactionsTableBody');
-                tableBody.innerHTML = '';
+                const response = await fetch('/accounts?t=' + Date.now());
+                const accounts = await response.json();
+                const grid = document.getElementById('accountsGrid');
+                grid.innerHTML = '';
 
-                if (!Array.isArray(transactions) || transactions.length === 0) {
-                    tableBody.innerHTML = '<tr class="border-t border-t-white/10"><td class="h-[72px] px-6 py-2 text-white text-sm font-normal leading-normal" colspan="5">No transactions found.</td></tr>';
+                if (!Array.isArray(accounts) || accounts.length === 0) {
+                    grid.innerHTML = `
+                        <div class="col-span-full flex flex-col items-center justify-center p-12 bg-white/5 border border-white/10 rounded-xl text-center">
+                            <span class="material-symbols-outlined text-4xl text-white/30 mb-4">account_balance_wallet</span>
+                            <p class="text-white text-lg font-medium mb-2">No accounts found</p>
+                            <p class="text-white/70 mb-6">Create your first account to get started.</p>
+                            <button
+                                class="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-bold"
+                                onclick="window.location.href='/create_account'">
+                                Create Account
+                            </button>
+                        </div>
+                    `;
                     return;
                 }
 
-                transactions.forEach(tx => {
-                    const row = document.createElement('tr');
-                    row.className = 'border-t border-t-white/10 hover:bg-white/5 transition-colors';
+                accounts.forEach(account => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-white/5 border border-white/10 rounded-xl p-6 flex flex-col gap-4 hover:bg-white/10 transition-colors group';
 
-                    // Format date
-                    const date = tx.timestamp ? new Date(tx.timestamp).toLocaleString() : 'N/A';
+                    // Generate a random gradient for the card header/icon based on address
+                    const loadedBalance = parseFloat(account.balance).toFixed(4);
 
-                    // Determine display names
-                    const fromDisplay = tx.from_account_name !== "External"
-                        ? `<span class="text-white font-medium">${tx.from_account_name}</span><br><span class="text-xs text-[#a69db9] font-mono">${tx.from_address.substring(0, 6)}...</span>`
-                        : `<span class="text-white">External</span><br><span class="text-xs text-[#a69db9] font-mono">${tx.from_address.substring(0, 6)}...${tx.from_address.substring(tx.from_address.length - 4)}</span>`;
+                    card.innerHTML = `
+                        <div class="flex items-start justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="size-10 rounded-full bg-gradient-to-br from-primary/30 to-purple-500/30 flex items-center justify-center text-white font-bold">
+                                    ${account.account_name.substring(0, 2).toUpperCase()}
+                                </div>
+                                <div>
+                                    <h3 class="text-white font-bold text-lg leading-tight px-1">${account.account_name}</h3>
+                                    <p class="text-white/50 text-xs font-mono px-1">${account.address.substring(0, 6)}...${account.address.slice(-4)}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="py-2">
+                             <p class="text-white/70 text-sm">Balance</p>
+                             <p class="text-white text-2xl font-bold font-mono">${loadedBalance} ETH</p>
+                        </div>
 
-                    const toDisplay = tx.to_account_name !== "External"
-                        ? `<span class="text-white font-medium">${tx.to_account_name}</span><br><span class="text-xs text-[#a69db9] font-mono">${tx.to_address.substring(0, 6)}...</span>`
-                        : `<span class="text-white">External</span><br><span class="text-xs text-[#a69db9] font-mono">${tx.to_address.substring(0, 6)}...${tx.to_address.substring(tx.to_address.length - 4)}</span>`;
-
-                    // Color amount based on sent/received
-                    const amountClass = tx.is_sent ? 'text-white' : 'text-success';
-                    const amountPrefix = tx.is_sent ? '-' : '+';
-
-                    row.innerHTML = `
-                        <td class="h-[72px] px-6 py-2 text-white/70 text-sm font-normal leading-normal whitespace-nowrap">${date}</td>
-                        <td class="h-[72px] px-6 py-2 text-sm leading-normal">${fromDisplay}</td>
-                        <td class="h-[72px] px-6 py-2 text-sm leading-normal">${toDisplay}</td>
-                        <td class="h-[72px] px-6 py-2 ${amountClass} text-sm font-medium leading-normal">${amountPrefix}${tx.amount}</td>
-                        <td class="h-[72px] px-6 py-2 text-white text-sm font-normal leading-normal">${tx.crypto_currency}</td>
-                        <td class="h-[72px] px-6 py-2 text-[#a69db9] text-sm font-normal leading-normal font-mono">
-                            <a href="https://sepolia.etherscan.io/tx/${tx.tx_hash}" target="_blank" class="hover:text-primary transition-colors flex items-center gap-1">
-                                ${tx.tx_hash.substring(0, 10)}...
-                                <span class="material-symbols-outlined text-[14px]">open_in_new</span>
+                        <div class="flex gap-2 mt-auto pt-2 border-t border-white/10">
+                            <a href="/send_crypto?mode=send&account=${account.address}" class="flex-1 flex items-center justify-center gap-2 py-2 bg-primary/20 text-primary hover:bg-primary hover:text-white rounded-lg transition-colors font-medium text-sm">
+                                <span class="material-symbols-outlined text-lg">send</span> Send
                             </a>
-                        </td>
+                            <a href="/send_crypto?mode=receive&account=${account.address}" class="flex-1 flex items-center justify-center gap-2 py-2 bg-white/5 text-white hover:bg-white/10 rounded-lg transition-colors font-medium text-sm">
+                                <span class="material-symbols-outlined text-lg">call_received</span> Receive
+                            </a>
+                        </div>
                     `;
-                    tableBody.appendChild(row);
+                    grid.appendChild(card);
                 });
 
-
             } catch (error) {
-                console.error('Error loading transactions:', error);
-                document.getElementById('transactionsTableBody').innerHTML = '<tr class="border-t border-t-white/10"><td class="h-[72px] px-6 py-2 text-white/70 text-sm font-normal leading-normal" colspan="5">Connection error. Retrying...</td></tr>';
-                // Retry automatically
-                setTimeout(loadTransactions, 3000);
+                console.error('Error loading accounts:', error);
+                document.getElementById('accountsGrid').innerHTML = `
+                    <div class="col-span-full p-8 text-center text-error">
+                        Failed to load accounts. Please try again.
+                    </div>
+                `;
             }
         }
 
@@ -238,20 +227,18 @@
                 .catch(error => console.error('Logout error:', error));
         }
 
-        document.addEventListener('DOMContentLoaded', loadTransactions);
+        document.addEventListener('DOMContentLoaded', loadAccounts);
 
-        // Sidebar Toggle Logic
+        // Sidebar Toggle
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
 
         function toggleSidebar() {
             const isClosed = sidebar.classList.contains('-translate-x-full');
             if (isClosed) {
-                // Open
                 sidebar.classList.remove('-translate-x-full');
                 sidebarOverlay.classList.remove('hidden');
             } else {
-                // Close
                 sidebar.classList.add('-translate-x-full');
                 sidebarOverlay.classList.add('hidden');
             }

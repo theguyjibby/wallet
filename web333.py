@@ -9,6 +9,12 @@ from web3 import Web3
 from eth_account import Account as EthAccount
 from flask import Flask, render_template, request, jsonify, session, url_for,redirect
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+import threading
+import time
+
+# Connect to Infura
+INFURA_URL = os.getenv('INFURA_URL', 'https://sepolia.infura.io/v3/YOUR_INFURA_ID')
+w3 = Web3(Web3.HTTPProvider(INFURA_URL))
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from eth_account.hdaccount import generate_mnemonic
@@ -337,6 +343,12 @@ def dashboard():
 
 
 
+@app.route('/accounts_view', methods=['GET'])
+@login_required
+def accounts_view():
+    return render_template('accounts.html', name=current_user.username)
+
+
 @app.route('/accounts', methods=['GET'])
 @login_required
 def get_accounts():
@@ -466,28 +478,112 @@ def get_eth_price_usd_route():
 
 
 
+# --- Transaction Listener Logic ---
+
+def process_block(block_number):
+    print(f"Scanning block {block_number}...")
+    try:
+        # Get block with full transactions
+        block = w3.eth.get_block(block_number, full_transactions=True)
+        
+        # Get all local account addresses to check against
+        # We fetch this fresh for each block in case new accounts are created
+        with app.app_context():
+            # Create a dictionary for fast lookup: {address_lower: user_id}
+            local_accounts = {acc.address.lower(): acc.user_id for acc in Account.query.all()}
+        
+        if not local_accounts:
+            return
+
+        for tx in block.transactions:
+            # Check if 'to' address matches one of our accounts
+            if tx['to'] and tx['to'].lower() in local_accounts:
+                user_id = local_accounts[tx['to'].lower()]
+                save_incoming_transaction(tx, user_id)
+                
+    except Exception as e:
+        print(f"Error processing block {block_number}: {e}")
+
+def save_incoming_transaction(tx, user_id):
+    with app.app_context():
+        try:
+            tx_hash = tx['hash'].hex()
+            
+            # Check if we already saved this transaction for THIS user to avoid duplicates
+            if Transactions.query.filter_by(tx_hash=tx_hash, user_id=user_id).first():
+                return
+
+            print(f" >>> FOUND DEPOSIT! Tx: {tx_hash} <<<")
+            
+            amount_eth = float(w3.from_wei(tx['value'], 'ether'))
+            
+            new_tx = Transactions(
+                user_id=user_id,
+                from_address=tx['from'],
+                to_address=tx['to'],
+                amount=amount_eth,
+                crypto_currency="ETH", # Assuming ETH for now
+                tx_hash=tx_hash,
+                is_sent=False # This is an incoming transaction
+            )
+            
+            db.session.add(new_tx)
+            # Create a notification or alert here if needed
+            
+            db.session.commit()
+            print("Transaction saved to database.")
+            
+        except Exception as e:
+            print(f"Error saving transaction: {e}")
+
+def listen_loop():
+    """
+    Continuously polls for new blocks and checks for transactions 
+    involving local accounts.
+    """
+    if not w3.is_connected():
+        print("Failed to connect to Infura.")
+        return
+
+    print("Starting transaction listener...")
+    
+    # Start from the current block
+    try:
+        last_block_number = w3.eth.block_number
+    except Exception as e:
+        print(f"Error getting initial block number: {e}")
+        return
+    
+    while True:
+        try:
+            current_block_number = w3.eth.block_number
+            
+            # If we are behind, catch up
+            if current_block_number > last_block_number:
+                # Process all blocks from last_seen + 1 to current
+                for block_num in range(last_block_number + 1, current_block_number + 1):
+                    process_block(block_num)
+                
+                last_block_number = current_block_number
+            
+            # Wait a bit before checking again (avg block time is 12s)
+            time.sleep(12)
+            
+        except Exception as e:
+            print(f"Error in listener loop: {e}")
+            time.sleep(5)
+
+def start_listener():
+    # Run the listener in a separate daemon thread
+    thread = threading.Thread(target=listen_loop)
+    thread.daemon = True
+    thread.start()
+
+# Start the background listener (Runs on import to support Gunicorn)
+start_listener()
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
 
-
     app.run(debug=False)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
