@@ -133,7 +133,7 @@ def load_user(user_id):
 def home():
     return render_template('home.html')
 
-@app.route('/register', methods=['GET', 'POST'])
+@app.route('/api/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
         data = request.get_json()
@@ -171,25 +171,32 @@ def register():
 
 
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/api/login', methods=['POST'])
 def login():
-    if request.method == 'POST':
-        data = request.get_json()
-        email = data.get("email")
-        password = data.get("password")
+    
+    data = request.get_json()
+    email = data.get("email")
+    password = data.get("password")
 
-        if not email and not password:
-            return jsonify({'status': 'error', 'message': 'Please enter email and password.'}), 400
+    if not email and not password:
+        return jsonify({'status': 'error', 'message': 'Please enter email and password.'}), 400
 
 
-        user = User.query.filter_by(email=email).first()
-        if user and check_password_hash(user.password, password):
-            login_user(user)
-            return jsonify({'status': 'success', 'message': 'Login successful.'}), 200
-        return jsonify({'status': 'error', 'message': 'Invalid email or password.'}), 400
+    user = User.query.filter_by(email=email).first()
+    if user and check_password_hash(user.password, password):
+        login_user(user)
+        return jsonify({'status': 'success', 'message': 'Login successful.'}), 200
+    return jsonify({'status': 'error', 'message': 'Invalid email or password.'}), 400
+return render_template('login.html')
+
+@app.route('/login', methods=['GET']
+def login_page():
     return render_template('login.html')
+    
+        
 
-@app.route('/logout')
+
+@app.route('/api/logout')
 @login_required
 def logout():
     logout_user()
@@ -198,12 +205,12 @@ def logout():
 
 
 #registration  has to be done manually but user can login via google if email exists in db
-@app.route('/login/google')
+@app.route('/api/login/google')
 def google_auth_route():
     redirect_uri = url_for("google_login_callback", _external=True)
     return google.authorize_redirect(redirect_uri)
 
-@app.route("/login/google/callback")
+@app.route("/api/login/google/callback")
 def google_login_callback():
     try:
         token = google.authorize_access_token()
@@ -229,7 +236,7 @@ def google_login_callback():
 
 
 
-@app.route('/forgot_password', methods=['POST', 'GET'])
+@app.route('/api/forgot_password', methods=['POST', 'GET'])
 def forgot_password_route():
     if request.method == 'POST':
         from reset_password import send_reset_email
@@ -282,7 +289,7 @@ def forgot_password_route():
 
 
 
-@app.route("/reset_password/<token>", methods=['POST', 'GET'])
+@app.route("/api/reset_password/<token>", methods=['POST', 'GET'])
 def reset_token_route(token):
     from reset_password import verify_reset_token
     email = verify_reset_token(token)
@@ -306,7 +313,7 @@ def reset_token_route(token):
 
 
 @login_required
-@app.route('/create_account', methods=['POST', 'GET'])
+@app.route('/api/create_account', methods=['POST', 'GET'])
 def create_account_route():
     if request.method == 'POST':
         data = request.get_json()
@@ -336,20 +343,20 @@ def create_account_route():
     return render_template('create_account.html')
 
 
-@app.route('/dashboard', methods=['GET'])
+@app.route('/api/dashboard', methods=['GET'])
 @login_required
 def dashboard():
     return render_template('dashboard.html', name=current_user.username)
 
 
 
-@app.route('/accounts_view', methods=['GET'])
+@app.route('/api/accounts_view', methods=['GET'])
 @login_required
 def accounts_view():
     return render_template('accounts.html', name=current_user.username)
 
 
-@app.route('/accounts', methods=['GET'])
+@app.route('/api/accounts', methods=['GET'])
 @login_required
 def get_accounts():
     user_accounts = Account.query.filter_by(user_id=current_user.user_id).all()
@@ -361,7 +368,7 @@ def get_accounts():
 
 
 
-@app.route('/accounts/<int:account_id>', methods=['GET'])
+@app.route('/api/accounts/<int:account_id>', methods=['GET'])
 @login_required
 def get_account(account_id):
     acct = Account.query.filter_by(account_id=account_id, user_id=current_user.user_id).first()
@@ -372,7 +379,7 @@ def get_account(account_id):
     return jsonify({'account_id': acct.account_id, 'address': acct.address, 'account_name': acct.account_name, "balance": str(balance)})
 
 
-@app.route('/send_crypto', methods=['POST', 'GET'])
+@app.route('/api/send_crypto', methods=['POST', 'GET'])
 @login_required
 def send_crypto_route():
     if request.method == 'POST':
@@ -439,7 +446,7 @@ def send_crypto_route():
 
 
 @login_required
-@app.route("/transaction_history", methods=["GET", "POST"])
+@app.route("/api/transaction_history", methods=["GET", "POST"])
 def transaction_history_route():
     if request.method == "GET":
         transactions = Transactions.query.filter_by(user_id=current_user.user_id).order_by(Transactions.timestamp.desc()).all()
@@ -464,13 +471,13 @@ def transaction_history_route():
         return jsonify(transactions_list)
 
 
-@app.route('/history', methods=['GET'])
+@app.route('/api/history', methods=['GET'])
 @login_required
 def history_page():
     return render_template('transaction_history.html', name=current_user.username)
 
 
-@app.route('/get_eth_price_usd', methods=['GET'])
+@app.route('/api/get_eth_price_usd', methods=['GET'])
 def get_eth_price_usd_route():
     # get_eth_price_usd now always returns a number (never None)
     return jsonify(get_eth_price_usd())
