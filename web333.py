@@ -178,7 +178,7 @@ def login():
     email = data.get("email")
     password = data.get("password")
 
-    if not email and not password:
+    if not email or not password:
         return jsonify({'status': 'error', 'message': 'Please enter email and password.'}), 400
 
 
