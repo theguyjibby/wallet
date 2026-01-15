@@ -50,7 +50,7 @@
                     <span class="text-xl font-bold text-text-light-primary dark:text-text-dark-primary">Web3
                         Wallet</span>
                 </div>
-                <a href="/dashboard"
+                <a href="/api/dashboard"
                     class="text-sm font-medium text-text-light-secondary dark:text-text-dark-secondary hover:text-primary transition-colors flex items-center gap-1">
                     <span class="material-symbols-outlined text-lg">arrow_back</span>
                     Dashboard
@@ -102,7 +102,7 @@
                                     class="w-full bg-primary text-white font-bold py-3 px-4 rounded-lg hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">
                                     Create Account
                                 </button>
-                                <a href="/dashboard"
+                                <a href="/api/dashboard"
                                     class="w-full text-center text-text-light-secondary dark:text-text-dark-secondary font-medium py-3 hover:text-text-light-primary dark:hover:text-text-dark-primary transition-colors">
                                     Cancel
                                 </a>
@@ -136,7 +136,7 @@
             createBtn.innerHTML = '<span class="material-symbols-outlined animate-spin text-sm mr-2">progress_activity</span>Creating...';
 
             try {
-                const resp = await fetch('/create_account', {
+                const resp = await fetch('/api/create_account', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ account_name: accountName, password: password })

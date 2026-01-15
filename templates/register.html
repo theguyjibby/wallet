@@ -211,7 +211,7 @@
               </label>
             </div>
             <div class="p-4 mt-4">
-              <a href="/dashboard"
+              <a href="/api/dashboard"
                 class="w-full bg-primary text-white font-bold py-3 px-4 rounded-lg text-center block hover:bg-primary/90 transition-colors">
                 Go to Dashboard
               </a>
@@ -354,7 +354,7 @@
       `;
 
       try {
-        const response = await fetch('/register', {
+        const response = await fetch('/api/register', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

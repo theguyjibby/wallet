@@ -135,38 +135,42 @@ def home():
 
 @app.route('/api/register', methods=['GET', 'POST'])
 def register():
-    if request.method == 'POST':
-        data = request.get_json()
-        firstname = data.get("firstname")
-        lastname = data.get("lastname")
-        username = data.get("username")
-        email = data.get("email")
-        password = data.get("password")
-        phone = data.get("phone")
-        country = data.get("country")
+    
+    data = request.get_json()
+    firstname = data.get("firstname")
+    lastname = data.get("lastname")
+    username = data.get("username")
+    email = data.get("email")
+    password = data.get("password")
+    phone = data.get("phone")
+    country = data.get("country")
 
-        mnemonic = generate_mnemonic(12, "english")
-        encrypted_mnemonic = encrypt_message(mnemonic, password)
+    mnemonic = generate_mnemonic(12, "english")
+    encrypted_mnemonic = encrypt_message(mnemonic, password)
 
 
-        if not (firstname and lastname and username and email and password and phone and country):
-            return jsonify({'status': 'error', 'message': 'Please fill out all fields.'})
+    if not (firstname and lastname and username and email and password and phone and country):
+        return jsonify({'status': 'error', 'message': 'Please fill out all fields.'})
 
-        if User.query.filter_by(email=email).first():
-            return jsonify({'status': 'error', 'message': 'User already exists. please login.'}),400
-        
-        if User.query.filter_by(username=username).first():
-            return jsonify({'status': 'error', 'message': 'Username already taken. please choose another one.'}),400
-        
-        if len(password) < 6:
-            return jsonify({'status': 'false', 'message': 'Password must be at least 6 characters long!'}), 400
-       
-        hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
-        new_user = User(firstname=firstname, lastname=lastname, username=username, email=email, password=hashed_password, phone=phone, country=country, user_mnemonic=encrypted_mnemonic)
-        db.session.add(new_user)
-        db.session.commit()
-        return jsonify({'status': 'success', 'message': 'User registered successfully.', 'mnemonic': mnemonic}),200
-    return render_template('register.html')
+    if User.query.filter_by(email=email).first():
+        return jsonify({'status': 'error', 'message': 'User already exists. please login.'}),400
+    
+    if User.query.filter_by(username=username).first():
+        return jsonify({'status': 'error', 'message': 'Username already taken. please choose another one.'}),400
+    
+    if len(password) < 6:
+        return jsonify({'status': 'false', 'message': 'Password must be at least 6 characters long!'}), 400
+    
+    hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
+    new_user = User(firstname=firstname, lastname=lastname, username=username, email=email, password=hashed_password, phone=phone, country=country, user_mnemonic=encrypted_mnemonic)
+    db.session.add(new_user)
+    db.session.commit()
+    return jsonify({'status': 'success', 'message': 'User registered successfully.', 'mnemonic': mnemonic}),200
+    
+
+@app.route('/register', methods=['GET'])
+def register_page():
+    return render_template('register.html') 
 
 
 
@@ -187,7 +191,7 @@ def login():
         login_user(user)
         return jsonify({'status': 'success', 'message': 'Login successful.'}), 200
     return jsonify({'status': 'error', 'message': 'Invalid email or password.'}), 400
-return render_template('login.html')
+
 
 @app.route('/login', methods=['GET'])
 def login_page():
@@ -238,52 +242,55 @@ def google_login_callback():
 
 @app.route('/api/forgot_password', methods=['POST', 'GET'])
 def forgot_password_route():
-    if request.method == 'POST':
-        from reset_password import send_reset_email
-        data = request.get_json()
-        email = data.get("email")
-        
-        print(f"[FORGOT_PASSWORD] Received request for email: {email}")
-        
-        if not email:
-            print("[FORGOT_PASSWORD] No email provided")
-            return jsonify({"message": "Email is required."}), 400
-        
-        user = User.query.filter_by(email=email).first()
-        if user:
-            print(f"[FORGOT_PASSWORD] User found: {user.username}")
-            try:
-                # Check if mail is configured
-                mail_username = app.config.get('MAIL_USERNAME')
-                mail_password = app.config.get('MAIL_PASSWORD')
-                
-                print(f"[FORGOT_PASSWORD] Mail configured: username={bool(mail_username)}, password={bool(mail_password)}")
-                
-                if not mail_username or not mail_password:
-                    print("[FORGOT_PASSWORD] Mail not configured properly")
-                    return jsonify({
-                        "message": "Email service is not configured. Please contact support or try again later."
-                    }), 503
-                
-                print("[FORGOT_PASSWORD] Attempting to send reset email...")
-                send_reset_email(user)
-                print("[FORGOT_PASSWORD] Reset email sent successfully")
-                return jsonify({"message": "Password reset link sent to your email"}), 200
-                
-            except Exception as e:
-                # Log the full error for debugging
-                import traceback
-                print(f"[FORGOT_PASSWORD] Error sending reset email: {e}")
-                print(f"[FORGOT_PASSWORD] Full traceback:\n{traceback.format_exc()}")
-                return jsonify({
-                    "message": "Failed to send reset email. Please try again later or contact support."
-                }), 500
-        else:
-            print(f"[FORGOT_PASSWORD] No user found for email: {email}")
-
-        # Don't reveal if email exists or not for security
-        return jsonify({"message": "If this email is registered, you will receive a reset link."}), 200
     
+    from reset_password import send_reset_email
+    data = request.get_json()
+    email = data.get("email")
+    
+    print(f"[FORGOT_PASSWORD] Received request for email: {email}")
+    
+    if not email:
+        print("[FORGOT_PASSWORD] No email provided")
+        return jsonify({"message": "Email is required."}), 400
+    
+    user = User.query.filter_by(email=email).first()
+    if user:
+        print(f"[FORGOT_PASSWORD] User found: {user.username}")
+        try:
+            # Check if mail is configured
+            mail_username = app.config.get('MAIL_USERNAME')
+            mail_password = app.config.get('MAIL_PASSWORD')
+            
+            print(f"[FORGOT_PASSWORD] Mail configured: username={bool(mail_username)}, password={bool(mail_password)}")
+            
+            if not mail_username or not mail_password:
+                print("[FORGOT_PASSWORD] Mail not configured properly")
+                return jsonify({
+                    "message": "Email service is not configured. Please contact support or try again later."
+                }), 503
+            
+            print("[FORGOT_PASSWORD] Attempting to send reset email...")
+            send_reset_email(user)
+            print("[FORGOT_PASSWORD] Reset email sent successfully")
+            return jsonify({"message": "Password reset link sent to your email"}), 200
+            
+        except Exception as e:
+            # Log the full error for debugging
+            import traceback
+            print(f"[FORGOT_PASSWORD] Error sending reset email: {e}")
+            print(f"[FORGOT_PASSWORD] Full traceback:\n{traceback.format_exc()}")
+            return jsonify({
+                "message": "Failed to send reset email. Please try again later or contact support."
+            }), 500
+    else:
+        print(f"[FORGOT_PASSWORD] No user found for email: {email}")
+
+    # Don't reveal if email exists or not for security
+    return jsonify({"message": "If this email is registered, you will receive a reset link."}), 200
+    
+
+@app.route("/forgot_password", methods=['GET'])
+def forgot_password_page():
     return render_template('forgot_password.html')
 
 
@@ -315,48 +322,51 @@ def reset_token_route(token):
 @login_required
 @app.route('/api/create_account', methods=['POST', 'GET'])
 def create_account_route():
-    if request.method == 'POST':
-        data = request.get_json()
-        account_name = data.get('account_name')
-        password = data.get('password')
+    
+    data = request.get_json()
+    account_name = data.get('account_name')
+    password = data.get('password')
 
-        verify_user = check_password_hash(current_user.password, password)
-        if not verify_user:
-            return jsonify("wrong password try again"), 400
-        
-        existing_account_name = Account.query.filter_by(account_name=account_name, user_id=current_user.user_id).first()
+    verify_user = check_password_hash(current_user.password, password)
+    if not verify_user:
+        return jsonify("wrong password try again"), 400
     
-        if existing_account_name:
-            return {'status': 'error', 'message': 'Account name already exists.'}, 400
-    
-        encrypted_mnemonic = current_user.user_mnemonic
-        decrypted_mnemonic = decrypt_message(encrypted_mnemonic, password)
-        Account_address, Account_private_key = derive_account(decrypted_mnemonic, Account.query.filter_by(user_id=current_user.user_id).count())
-        encrypted_private_key = encrypt_message(Account_private_key, password)
-   
-    
-    
-        new_account = Account(address=Account_address, private_key=encrypted_private_key, user_id=current_user.user_id, account_name=account_name)
-        db.session.add(new_account)
-        db.session.commit()
-        return {'status': 'success', 'address': Account_address, 'message': 'Account successfully created.'}
-    return render_template('create_account.html')
+    existing_account_name = Account.query.filter_by(account_name=account_name, user_id=current_user.user_id).first()
+
+    if existing_account_name:
+        return {'status': 'error', 'message': 'Account name already exists.'}, 400
+
+    encrypted_mnemonic = current_user.user_mnemonic
+    decrypted_mnemonic = decrypt_message(encrypted_mnemonic, password)
+    Account_address, Account_private_key = derive_account(decrypted_mnemonic, Account.query.filter_by(user_id=current_user.user_id).count())
+    encrypted_private_key = encrypt_message(Account_private_key, password)
 
 
-@app.route('/api/dashboard', methods=['GET'])
+
+    new_account = Account(address=Account_address, private_key=encrypted_private_key, user_id=current_user.user_id, account_name=account_name)
+    db.session.add(new_account)
+    db.session.commit()
+    return {'status': 'success', 'address': Account_address, 'message': 'Account successfully created.'}
+
+@app.route('/create_account', methods=['GET'])
+def create_account_page():
+    return render_template('create_account.html')   
+
+
+@app.route('/dashboard', methods=['GET'])
 @login_required
 def dashboard():
     return render_template('dashboard.html', name=current_user.username)
 
 
 
-@app.route('/api/accounts_view', methods=['GET'])
+@app.route('/accounts_view', methods=['GET'])
 @login_required
 def accounts_view():
     return render_template('accounts.html', name=current_user.username)
 
 
-@app.route('/api/accounts', methods=['GET'])
+@app.route('/accounts', methods=['GET'])
 @login_required
 def get_accounts():
     user_accounts = Account.query.filter_by(user_id=current_user.user_id).all()
@@ -368,7 +378,7 @@ def get_accounts():
 
 
 
-@app.route('/api/accounts/<int:account_id>', methods=['GET'])
+@app.route('/accounts/<int:account_id>', methods=['GET'])
 @login_required
 def get_account(account_id):
     acct = Account.query.filter_by(account_id=account_id, user_id=current_user.user_id).first()
@@ -382,102 +392,103 @@ def get_account(account_id):
 @app.route('/api/send_crypto', methods=['POST', 'GET'])
 @login_required
 def send_crypto_route():
-    if request.method == 'POST':
-        data = request.get_json()
-        from_address = data.get('from_address')
-        to_address = data.get('to_address')
-        crypto_currency = data.get('crypto_currency')
-        amount = float(data.get('amount'))
-        password = data.get('password')
+
+    data = request.get_json()
+    from_address = data.get('from_address')
+    to_address = data.get('to_address')
+    crypto_currency = data.get('crypto_currency')
+    amount = float(data.get('amount'))
+    password = data.get('password')
+    
+    confirming_to_address = Account.query.filter_by(address=to_address).first()
+    if from_address not in [acct.address for acct in Account.query.filter_by(user_id=current_user.user_id).all()]:
+        return jsonify({'status': 'error', 'message': 'Sender address not found.'}), 404    
+    if not confirming_to_address:
+        return jsonify({'status': 'error', 'message': 'Recipient address not found.'}), 404
+    if not Web3.is_address(to_address):
+        return jsonify({'status': 'error', 'message': 'Invalid recipient address.'}), 400
+    if amount == None or float(amount) <= 0:
+        return jsonify({'status': 'error', 'message': 'Invalid amount.'}), 400
+    
+    if not check_password_hash(current_user.password, password):
+        return jsonify("wrong password try again")
+    
+    sender_private_key = decrypt_message(Account.query.filter_by(address=from_address, user_id=current_user.user_id).first().private_key, password)
+    try:
+        if crypto_currency.upper() == 'ETH':
+            tx_hash = send_crypto(from_address, sender_private_key, to_address, amount, crypto_currency='ETH')
+        else:
+            token_info = TOKENS.get(crypto_currency.upper())
+            if not token_info:
+                return jsonify({'status': 'error', 'message': 'Unsupported cryptocurrency.'}), 400
+            tx_hash = send_crypto(from_address, sender_private_key, to_address, amount, crypto_currency=crypto_currency.upper(), token_address=Web3.to_checksum_address(token_info['address']), token_abi=ERC20_ABI)
         
-        confirming_to_address = Account.query.filter_by(address=to_address).first()
-        if not confirming_to_address:
-            return jsonify({'status': 'error', 'message': 'Recipient address not found.'}), 404
-        if not Web3.is_address(to_address):
-            return jsonify({'status': 'error', 'message': 'Invalid recipient address.'}), 400
-        if amount == None or float(amount) <= 0:
-            return jsonify({'status': 'error', 'message': 'Invalid amount.'}), 400
+        new_transaction = Transactions(
+            from_address=from_address,
+            to_address=to_address,
+            amount=amount,
+            crypto_currency=crypto_currency.upper(),
+            tx_hash=tx_hash,
+            user_id=current_user.user_id,
+            is_sent=True
+        )
+        db.session.add(new_transaction)
         
-        if not check_password_hash(current_user.password, password):
-            return jsonify("wrong password try again")
+        # Since we only allow sending to internal accounts (checked above),
+        # clearly create the "Received" record for the recipient immediately.
+        recipient_transaction = Transactions(
+            from_address=from_address,
+            to_address=to_address,
+            amount=amount,
+            crypto_currency=crypto_currency.upper(),
+            tx_hash=tx_hash,
+            user_id=confirming_to_address.user_id,
+            is_sent=False
+        )
+        db.session.add(recipient_transaction)
         
-        sender_private_key = decrypt_message(Account.query.filter_by(address=from_address, user_id=current_user.user_id).first().private_key, password)
-        try:
-            if crypto_currency.upper() == 'ETH':
-                tx_hash = send_crypto(from_address, sender_private_key, to_address, amount, crypto_currency='ETH')
-            else:
-                token_info = TOKENS.get(crypto_currency.upper())
-                if not token_info:
-                    return jsonify({'status': 'error', 'message': 'Unsupported cryptocurrency.'}), 400
-                tx_hash = send_crypto(from_address, sender_private_key, to_address, amount, crypto_currency=crypto_currency.upper(), token_address=Web3.to_checksum_address(token_info['address']), token_abi=ERC20_ABI)
-            
-            new_transaction = Transactions(
-                from_address=from_address,
-                to_address=to_address,
-                amount=amount,
-                crypto_currency=crypto_currency.upper(),
-                tx_hash=tx_hash,
-                user_id=current_user.user_id,
-                is_sent=True
-            )
-            db.session.add(new_transaction)
-            
-            # Since we only allow sending to internal accounts (checked above),
-            # clearly create the "Received" record for the recipient immediately.
-            recipient_transaction = Transactions(
-                from_address=from_address,
-                to_address=to_address,
-                amount=amount,
-                crypto_currency=crypto_currency.upper(),
-                tx_hash=tx_hash,
-                user_id=confirming_to_address.user_id,
-                is_sent=False
-            )
-            db.session.add(recipient_transaction)
-            
-            db.session.commit()
-            return jsonify({'status': 'success', 'tx_hash': tx_hash, 'message': 'Transaction sent successfully.', "amount": amount, "to_address": to_address, "balance": str(check_balance(from_address)), "crypto_currency": crypto_currency.upper()})
-        except Exception as e:
-            error_message = str(e)
-            if "Insufficient balance" in error_message:
-                return jsonify({'status': 'error', 'message': error_message}), 400
-            return jsonify({'status': 'error', 'message': error_message}), 500
+        db.session.commit()
+        return jsonify({'status': 'success', 'tx_hash': tx_hash, 'message': 'Transaction sent successfully.', "amount": amount, "to_address": to_address, "balance": str(check_balance(from_address)), "crypto_currency": crypto_currency.upper()})
+    except Exception as e:
+        error_message = str(e)
+        if "Insufficient balance" in error_message:
+            return jsonify({'status': 'error', 'message': error_message}), 400
+        return jsonify({'status': 'error', 'message': error_message}), 500
+    
+@app.route('/send_crypto', methods=['GET'])
+def send_crypto_route():
     return render_template('send_crypto.html')
 
 
 @login_required
-@app.route("/api/transaction_history", methods=["GET", "POST"])
+@app.route("/transaction_history", methods=["GET"])
 def transaction_history_route():
-    if request.method == "GET":
-        transactions = Transactions.query.filter_by(user_id=current_user.user_id).order_by(Transactions.timestamp.desc()).all()
-        transactions_list = []
-        for tx in transactions:
-            from_acc = Account.query.filter_by(user_id=current_user.user_id, address=tx.from_address).first()
-            to_acc = Account.query.filter_by(user_id=current_user.user_id, address=tx.to_address).first()
-            
-            transactions_list.append({
-                "transaction_id": tx.transaction_id,
-                "from_address": tx.from_address,
-                "from_account_name": from_acc.account_name if from_acc else "External",
-                "to_address": tx.to_address,
-                "to_account_name": to_acc.account_name if to_acc else "External",
-                "amount": tx.amount,
-                "crypto_currency": tx.crypto_currency,
-                "tx_hash": tx.tx_hash,
-                "timestamp": tx.timestamp,
-                "is_sent": getattr(tx, 'is_sent', True) # Handle legacy records if any
-            })
+    
+    transactions = Transactions.query.filter_by(user_id=current_user.user_id).order_by(Transactions.timestamp.desc()).all()
+    transactions_list = []
+    for tx in transactions:
+        from_acc = Account.query.filter_by(user_id=current_user.user_id, address=tx.from_address).first()
+        to_acc = Account.query.filter_by(user_id=current_user.user_id, address=tx.to_address).first()
         
-        return jsonify(transactions_list)
+        transactions_list.append({
+            "transaction_id": tx.transaction_id,
+            "from_address": tx.from_address,
+            "from_account_name": from_acc.account_name if from_acc else "External",
+            "to_address": tx.to_address,
+            "to_account_name": to_acc.account_name if to_acc else "External",
+            "amount": tx.amount,
+            "crypto_currency": tx.crypto_currency,
+            "tx_hash": tx.tx_hash,
+            "timestamp": tx.timestamp,
+            "is_sent": getattr(tx, 'is_sent', True) # Handle legacy records if any
+        })
+        
+    return render_template('transaction_history.html', transactions=transactions_list)  
 
 
-@app.route('/api/history', methods=['GET'])
-@login_required
-def history_page():
-    return render_template('transaction_history.html', name=current_user.username)
 
 
-@app.route('/api/get_eth_price_usd', methods=['GET'])
+@app.route('/get_eth_price_usd', methods=['GET'])
 def get_eth_price_usd_route():
     # get_eth_price_usd now always returns a number (never None)
     return jsonify(get_eth_price_usd())

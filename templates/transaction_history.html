@@ -86,22 +86,22 @@
                     </div>
                     <nav class="flex flex-col gap-2">
                         <a class="flex items-center gap-3 px-3 py-2 text-white/70 hover:bg-white/10 rounded-lg transition-colors"
-                            href="/dashboard">
+                            href="/api/dashboard">
                             <span class="material-symbols-outlined">dashboard</span>
                             <p class="text-sm font-medium leading-normal">Dashboard</p>
                         </a>
                         <a class="flex items-center gap-3 px-3 py-2 text-white/70 hover:bg-white/10 rounded-lg transition-colors"
-                            href="/accounts_view">
+                            href="/api/accounts_view">
                             <span class="material-symbols-outlined">account_balance_wallet</span>
                             <p class="text-sm font-medium leading-normal">Accounts</p>
                         </a>
                         <a class="flex items-center gap-3 px-3 py-2 text-white/70 hover:bg-white/10 rounded-lg transition-colors"
-                            href="/send_crypto">
+                            href="/api/send_crypto">
                             <span class="material-symbols-outlined">send</span>
                             <p class="text-sm font-medium leading-normal">Send/Receive</p>
                         </a>
                         <a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/20 text-primary"
-                            href="/history">
+                            href="/api/history">
                             <span class="material-symbols-outlined">history</span>
                             <p class="text-sm font-medium leading-normal">Transaction History</p>
                         </a>
@@ -175,7 +175,7 @@
     <script>
         async function loadTransactions() {
             try {
-                const response = await fetch('/transaction_history');
+                const response = await fetch('/api/transaction_history');
                 const transactions = await response.json();
                 const tableBody = document.getElementById('transactionsTableBody');
                 tableBody.innerHTML = '';
@@ -231,7 +231,7 @@
         }
 
         function logout() {
-            fetch('/logout')
+            fetch('/api/logout')
                 .then(() => {
                     window.location.href = '/';
                 })

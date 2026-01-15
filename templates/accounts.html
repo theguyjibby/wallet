@@ -86,22 +86,22 @@
                     </div>
                     <nav class="flex flex-col gap-2">
                         <a class="flex items-center gap-3 px-3 py-2 text-white/70 hover:bg-white/10 rounded-lg transition-colors"
-                            href="/dashboard">
+                            href="/api/dashboard">
                             <span class="material-symbols-outlined">dashboard</span>
                             <p class="text-sm font-medium leading-normal">Dashboard</p>
                         </a>
                         <a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/20 text-primary"
-                            href="/accounts_view">
+                            href="/api/accounts_view">
                             <span class="material-symbols-outlined">account_balance_wallet</span>
                             <p class="text-sm font-medium leading-normal">Accounts</p>
                         </a>
                         <a class="flex items-center gap-3 px-3 py-2 text-white/70 hover:bg-white/10 rounded-lg transition-colors"
-                            href="/send_crypto">
+                            href="/api/send_crypto">
                             <span class="material-symbols-outlined">send</span>
                             <p class="text-sm font-medium leading-normal">Send/Receive</p>
                         </a>
                         <a class="flex items-center gap-3 px-3 py-2 text-white/70 hover:bg-white/10 rounded-lg transition-colors"
-                            href="/history">
+                            href="/api/history">
                             <span class="material-symbols-outlined">history</span>
                             <p class="text-sm font-medium leading-normal">Transaction History</p>
                         </a>
@@ -129,7 +129,7 @@
                         <h2 class="text-white text-4xl font-bold leading-tight tracking-[-0.033em]">My Accounts</h2>
                         <button
                             class="flex min-w-[84px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-12 px-6 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors"
-                            onclick="window.location.href='/create_account'">
+                            onclick="window.location.href='/api/create_account'">
                             <span class="material-symbols-outlined">add_circle</span>
                             <span class="truncate">Create Account</span>
                         </button>
@@ -151,7 +151,7 @@
     <script>
         async function loadAccounts() {
             try {
-                const response = await fetch('/accounts?t=' + Date.now());
+                const response = await fetch('/api/accounts?t=' + Date.now());
                 const accounts = await response.json();
                 const grid = document.getElementById('accountsGrid');
                 grid.innerHTML = '';
@@ -164,7 +164,7 @@
                             <p class="text-white/70 mb-6">Create your first account to get started.</p>
                             <button
                                 class="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-bold"
-                                onclick="window.location.href='/create_account'">
+                                onclick="window.location.href='/api/create_account'">
                                 Create Account
                             </button>
                         </div>
@@ -198,10 +198,10 @@
                         </div>
 
                         <div class="flex gap-2 mt-auto pt-2 border-t border-white/10">
-                            <a href="/send_crypto?mode=send&account=${account.address}" class="flex-1 flex items-center justify-center gap-2 py-2 bg-primary/20 text-primary hover:bg-primary hover:text-white rounded-lg transition-colors font-medium text-sm">
+                            <a href="/api/send_crypto?mode=send&account=${account.address}" class="flex-1 flex items-center justify-center gap-2 py-2 bg-primary/20 text-primary hover:bg-primary hover:text-white rounded-lg transition-colors font-medium text-sm">
                                 <span class="material-symbols-outlined text-lg">send</span> Send
                             </a>
-                            <a href="/send_crypto?mode=receive&account=${account.address}" class="flex-1 flex items-center justify-center gap-2 py-2 bg-white/5 text-white hover:bg-white/10 rounded-lg transition-colors font-medium text-sm">
+                            <a href="/api/send_crypto?mode=receive&account=${account.address}" class="flex-1 flex items-center justify-center gap-2 py-2 bg-white/5 text-white hover:bg-white/10 rounded-lg transition-colors font-medium text-sm">
                                 <span class="material-symbols-outlined text-lg">call_received</span> Receive
                             </a>
                         </div>
@@ -220,7 +220,7 @@
         }
 
         function logout() {
-            fetch('/logout')
+            fetch('/api/logout')
                 .then(() => {
                     window.location.href = '/';
                 })
