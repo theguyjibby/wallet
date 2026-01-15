@@ -389,7 +389,7 @@ def get_account(account_id):
     return jsonify({'account_id': acct.account_id, 'address': acct.address, 'account_name': acct.account_name, "balance": str(balance)})
 
 
-@app.route('/api/send_crypto', methods=['POST', 'GET'])
+@app.route('/api/send_crypto', methods=['POST'])
 @login_required
 def send_crypto_route():
 
@@ -454,9 +454,10 @@ def send_crypto_route():
         if "Insufficient balance" in error_message:
             return jsonify({'status': 'error', 'message': error_message}), 400
         return jsonify({'status': 'error', 'message': error_message}), 500
-    
+
+@login_required
 @app.route('/send_crypto', methods=['GET'])
-def send_crypto_route():
+def send_crypto_page():
     return render_template('send_crypto.html')
 
 

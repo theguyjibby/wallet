@@ -91,22 +91,22 @@
             </button>
           </div>
           <nav class="flex flex-col gap-2">
-            <a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/20 text-primary" href="/api/dashboard">
+            <a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/20 text-primary" href="/dashboard">
               <span class="material-symbols-outlined">dashboard</span>
               <p class="text-sm font-medium leading-normal">Dashboard</p>
             </a>
             <a class="flex items-center gap-3 px-3 py-2 text-white/70 hover:bg-white/10 rounded-lg transition-colors"
-              href="/api/accounts_view">
+              href="/accounts_view">
               <span class="material-symbols-outlined">account_balance_wallet</span>
               <p class="text-sm font-medium leading-normal">Accounts</p>
             </a>
             <a class="flex items-center gap-3 px-3 py-2 text-white/70 hover:bg-white/10 rounded-lg transition-colors"
-              href="/api/send_crypto">
+              href="/send_crypto">
               <span class="material-symbols-outlined">send</span>
               <p class="text-sm font-medium leading-normal">Send/Receive</p>
             </a>
             <a class="flex items-center gap-3 px-3 py-2 text-white/70 hover:bg-white/10 rounded-lg transition-colors"
-              href="/api/history">
+              href="/transaction_history">
               <span class="material-symbols-outlined">history</span>
               <p class="text-sm font-medium leading-normal">Transaction History</p>
             </a>
@@ -134,13 +134,13 @@
                 id="userName">User</span>!</p>
             <button
               class="flex min-w-[84px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-12 px-6 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors"
-              onclick="window.location.href='/api/send_crypto'">
+              onclick="window.location.href='/send_crypto'">
               <span class="material-symbols-outlined">swap_horiz</span>
               <span class="truncate">send/receive crypto</span>
             </button>
             <button
               class="flex min-w-[84px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-12 px-6 bg-white/10 text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-white/20 transition-colors"
-              onclick="window.location.href='/api/create_account'">
+              onclick="window.location.href='/create_account'">
               <span class="material-symbols-outlined">add_circle</span>
               <span class="truncate">Create Account</span>
             </button>
@@ -199,7 +199,7 @@
 
     async function fetchEthPrice() {
       try {
-        const response = await fetch('/api/get_eth_price_usd');
+        const response = await fetch('/get_eth_price_usd');
         if (response.ok) {
           const price = await response.json();
           currentEthPrice = parseFloat(price);
@@ -239,7 +239,7 @@
         document.getElementById('userName').textContent = userName;
 
         // Fetch accounts with cache busting to ensure fresh data
-        const accountsResponse = await fetch('/api/accounts?t=' + Date.now());
+        const accountsResponse = await fetch('/accounts?t=' + Date.now());
         const accounts = await accountsResponse.json();
 
         if (Array.isArray(accounts)) {
@@ -267,10 +267,10 @@
             <td class="h-[72px] px-6 py-2 text-[#a69db9] text-sm font-normal leading-normal font-mono">${account.address.substring(0, 6)}...${account.address.substring(account.address.length - 4)}</td>
             <td class="h-[72px] px-6 py-2 text-white text-sm font-normal leading-normal">${parseFloat(account.balance).toFixed(4)} ETH</td>
             <td class="h-[72px] px-6 py-2 text-right flex gap-2 justify-end items-center">
-              <a href="/api/send_crypto?mode=send&account=${account.address}" class="text-sm bg-primary hover:bg-primary/90 text-white px-3 py-1.5 rounded-md transition-colors font-medium flex items-center gap-1">
+              <a href="/send_crypto?mode=send&account=${account.address}" class="text-sm bg-primary hover:bg-primary/90 text-white px-3 py-1.5 rounded-md transition-colors font-medium flex items-center gap-1">
                 Send
               </a>
-              <a href="/api/send_crypto?mode=receive&account=${account.address}" class="text-sm bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-md transition-colors font-medium flex items-center gap-1">
+              <a href="/send_crypto?mode=receive&account=${account.address}" class="text-sm bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-md transition-colors font-medium flex items-center gap-1">
                 Receive
               </a>
             </td>
