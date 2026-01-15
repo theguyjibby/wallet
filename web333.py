@@ -133,8 +133,8 @@ def load_user(user_id):
 def home():
     return render_template('home.html')
 
-@app.route('/api/register', methods=['GET', 'POST'])
-def register():
+@app.route('/api/register', methods=['POST'])
+def register_api():
     
     data = request.get_json()
     firstname = data.get("firstname")
@@ -169,14 +169,14 @@ def register():
     
 
 @app.route('/register', methods=['GET'])
-def register_page():
+def register():
     return render_template('register.html') 
 
 
 
 
 @app.route('/api/login', methods=['POST'])
-def login():
+def login_api():
     
     data = request.get_json()
     email = data.get("email")
@@ -194,7 +194,7 @@ def login():
 
 
 @app.route('/login', methods=['GET'])
-def login_page():
+def login():
     return render_template('login.html')
     
         
@@ -240,7 +240,7 @@ def google_login_callback():
 
 
 
-@app.route('/api/forgot_password', methods=['POST', 'GET'])
+@app.route('/api/forgot_password', methods=['POST'])
 def forgot_password_route():
     
     from reset_password import send_reset_email
@@ -296,22 +296,28 @@ def forgot_password_page():
 
 
 
-@app.route("/api/reset_password/<token>", methods=['POST', 'GET'])
-def reset_token_route(token):
+@app.route("/reset_password/<token>", methods=['GET'])
+def reset_token_page(token):
+    from reset_password import verify_reset_token
+    email = verify_reset_token(token)
+    if not email:
+        return "Invalid or expired token", 400
+    return render_template('reset_password.html', token=token)
+
+@app.route("/api/reset_password/<token>", methods=['POST'])
+def reset_token_api(token):
     from reset_password import verify_reset_token
     email = verify_reset_token(token)
     if not email:
         return jsonify({"error": "Invalid or expired token"}), 400
-    if request.method == 'POST':
-        data = request.get_json()
-        new_password = generate_password_hash(data.get('password'))
-
-        user = User.query.filter_by(email=email).first()
-        user.password = new_password
-        db.session.commit()
-        return jsonify({"message": "Password updated!"})
     
-    return render_template('reset_password.html', token=token)
+    data = request.get_json()
+    new_password = generate_password_hash(data.get('password'))
+
+    user = User.query.filter_by(email=email).first()
+    user.password = new_password
+    db.session.commit()
+    return jsonify({"message": "Password updated!"})
     
 
 
@@ -485,6 +491,31 @@ def transaction_history_route():
         })
         
     return render_template('transaction_history.html', transactions=transactions_list)  
+
+
+@login_required
+@app.route("/api/transaction_history", methods=["GET"])
+def transaction_history_api():
+    transactions = Transactions.query.filter_by(user_id=current_user.user_id).order_by(Transactions.timestamp.desc()).all()
+    transactions_list = []
+    for tx in transactions:
+        from_acc = Account.query.filter_by(user_id=current_user.user_id, address=tx.from_address).first()
+        to_acc = Account.query.filter_by(user_id=current_user.user_id, address=tx.to_address).first()
+        
+        transactions_list.append({
+            "transaction_id": tx.transaction_id,
+            "from_address": tx.from_address,
+            "from_account_name": from_acc.account_name if from_acc else "External",
+            "to_address": tx.to_address,
+            "to_account_name": to_acc.account_name if to_acc else "External",
+            "amount": tx.amount,
+            "crypto_currency": tx.crypto_currency,
+            "tx_hash": tx.tx_hash,
+            "timestamp": tx.timestamp,
+            "is_sent": getattr(tx, 'is_sent', True) 
+        })
+        
+    return jsonify(transactions_list)
 
 
 
