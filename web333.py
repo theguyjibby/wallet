@@ -189,7 +189,7 @@ def login():
     return jsonify({'status': 'error', 'message': 'Invalid email or password.'}), 400
 return render_template('login.html')
 
-@app.route('/login', methods=['GET']
+@app.route('/login', methods=['GET'])
 def login_page():
     return render_template('login.html')
     
