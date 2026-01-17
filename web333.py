@@ -46,10 +46,8 @@ app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
 app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your_secret_key')
 # Use DATABASE_URL from Render, or SQLALCHEMY_DATABASE_URI, or fallback to SQLite for local dev
-database_url = os.getenv('DATABASE_URL') or os.getenv('SQLALCHEMY_DATABASE_URI', 'sqlite:///web33.db')
-# Render uses postgres:// but SQLAlchemy needs postgresql://
-if database_url.startswith('postgres://'):
-    database_url = database_url.replace('postgres://', 'postgresql://', 1)
+database_url = os.getenv('DATABASE_URL')
+
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
@@ -631,6 +629,11 @@ def start_listener():
 
 # Start the background listener (Runs on import to support Gunicorn)
 start_listener()
+
+@app.route("/debug")
+def debug_route():
+    return app.config["SQLALCHEMY_DATABASE_URI"]
+
 
 if __name__ == '__main__':
     with app.app_context():
