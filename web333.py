@@ -45,7 +45,7 @@ app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
 app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your_secret_key')
-# Use DATABASE_URL from Render, or SQLALCHEMY_DATABASE_URI, or fallback to SQLite for local dev
+
 database_url = os.getenv('DATABASE_URL')
 
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
@@ -81,6 +81,11 @@ EthAccount.enable_unaudited_hdwallet_features()
 
 
 db = SQLAlchemy(app)
+
+with app.app_context():
+    db.create_all()
+
+
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
@@ -636,7 +641,4 @@ def debug_route():
 
 
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-
     app.run(debug=False)
