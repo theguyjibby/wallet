@@ -124,7 +124,7 @@ class Transactions(db.Model, UserMixin):
     is_sent = db.Column(db.Boolean, default=True)
 
     with app.app_context():
-    db.create_all()
+        db.create_all()
 
 
 
