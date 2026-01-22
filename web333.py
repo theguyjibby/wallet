@@ -82,8 +82,7 @@ EthAccount.enable_unaudited_hdwallet_features()
 
 db = SQLAlchemy(app)
 
-with app.app_context():
-    db.create_all()
+
 
 
 login_manager = LoginManager(app)
@@ -124,7 +123,8 @@ class Transactions(db.Model, UserMixin):
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
     is_sent = db.Column(db.Boolean, default=True)
 
-    
+    with app.app_context():
+    db.create_all()
 
 
 
